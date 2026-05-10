@@ -488,52 +488,6 @@
     color: var(--sun);
   }
 
-  /* ----- Gameplay grid (mosaic) ----- */
-  .gameplay{
-    display:grid;
-    grid-template-columns: repeat(6, 1fr);
-    grid-auto-rows: 130px;
-    gap: 14px;
-  }
-  @media (max-width: 980px){
-    .gameplay{ grid-template-columns: repeat(4, 1fr); grid-auto-rows: 110px; }
-  }
-  @media (max-width: 600px){
-    .gameplay{ grid-template-columns: repeat(2, 1fr); grid-auto-rows: 130px; }
-  }
-  .gameplay-tile{
-    position:relative; overflow:hidden;
-    border: 3px solid var(--mid);
-    background: var(--abyss);
-    transition: border-color .2s, transform .2s;
-  }
-  .gameplay-tile:hover{ border-color: var(--sun); transform: translateY(-3px); }
-  .gameplay-tile video{
-    width:100%; height:100%; object-fit:cover; display:block;
-    image-rendering: pixelated;
-  }
-  /* mosaic spans (5-tile layout) */
-  .gameplay-tile.large{ grid-column: span 3; grid-row: span 2; }
-  .gameplay-tile.tall{  grid-column: span 3; grid-row: span 2; }
-  .gameplay-tile.wide{  grid-column: span 6; grid-row: span 1; }
-  .gameplay-tile.normal{ grid-column: span 3; grid-row: span 1; }
-  @media (max-width: 980px){
-    .gameplay-tile.large{ grid-column: span 4; grid-row: span 2; }
-    .gameplay-tile.tall{  grid-column: span 4; grid-row: span 2; }
-    .gameplay-tile.wide{  grid-column: span 4; grid-row: span 1; }
-    .gameplay-tile.normal{ grid-column: span 2; grid-row: span 1; }
-  }
-  @media (max-width: 600px){
-    .gameplay-tile.large,
-    .gameplay-tile.tall,
-    .gameplay-tile.wide,
-    .gameplay-tile.normal{ grid-column: span 2; grid-row: span 1; }
-  }
-  .gameplay-tile::after{
-    content:""; position:absolute; inset:0; pointer-events:none;
-    box-shadow: inset 0 0 30px hsla(220 70% 4% / 0.5);
-  }
-
   /* ----- Bosses ----- */
   .bosses{
     display:grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
@@ -1064,33 +1018,6 @@
   </div>
 </section>
 
-<!-- ========= GAMEPLAY GALLERY ========= -->
-<section id="gameplay" class="block">
-  <div class="section-head">
-    <div class="eyebrow" data-i18n="gameplay.eyebrow">GAMEPLAY / MOMENTS</div>
-    <h2 data-i18n="gameplay.title">바다가 기억하는 순간들</h2>
-    <p data-i18n="gameplay.subtitle">광역 폭발, 빙결, 마법진, 보스전 — 모두 한 번의 다이브 안에서.</p>
-  </div>
-
-  <div class="gameplay">
-    <a class="gameplay-tile large" data-clip-tile>
-      <video src="assets/clips/g05.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g05.webp"></video>
-    </a>
-    <a class="gameplay-tile tall" data-clip-tile>
-      <video src="assets/clips/g07.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g07.webp"></video>
-    </a>
-    <a class="gameplay-tile wide" data-clip-tile>
-      <video src="assets/clips/g03.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g03.webp"></video>
-    </a>
-    <a class="gameplay-tile normal" data-clip-tile>
-      <video src="assets/clips/g11.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g11.webp"></video>
-    </a>
-    <a class="gameplay-tile normal" data-clip-tile>
-      <video src="assets/clips/g04.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g04.webp"></video>
-    </a>
-  </div>
-</section>
-
 <!-- ========= GALLERY ========= -->
 <section id="gallery" class="block">
   <div class="section-head">
@@ -1319,25 +1246,6 @@
 
     restart();
   })();
-
-  // ----- Gameplay tiles: autoplay when in viewport, pause when out -----
-  if ('IntersectionObserver' in window) {
-    const io = new IntersectionObserver(entries=>{
-      entries.forEach(e=>{
-        const v = e.target.querySelector('video');
-        if (!v) return;
-        if (e.isIntersecting) {
-          v.play().catch(()=>{});
-        } else {
-          v.pause();
-        }
-      });
-    }, { threshold: 0.25 });
-    document.querySelectorAll('[data-clip-tile]').forEach(t => io.observe(t));
-  } else {
-    // Fallback: just play all
-    document.querySelectorAll('[data-clip-tile] video').forEach(v => v.play().catch(()=>{}));
-  }
 
   // ----- BGM (lobby) -----
   // Browser autoplay policy: audio with sound cannot autoplay until the user

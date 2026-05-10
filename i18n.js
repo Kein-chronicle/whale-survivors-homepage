@@ -20,9 +20,6 @@ window.I18N.ko = {
   "inaction.f1": "▸ 50종 이상의 무기 · 유물 조합",
   "inaction.f2": "▸ 6개 해역 · 6개 보스 · 무한 생존 모드",
   "inaction.f3": "▸ 영구 강화로 매 다이브 더 강하게",
-  "gameplay.eyebrow": "GAMEPLAY / MOMENTS",
-  "gameplay.title": "바다가 기억하는 순간들",
-  "gameplay.subtitle": "광역 폭발, 빙결, 마법진, 보스전 — 모두 한 번의 다이브 안에서.",
 
   "hero.tagline": "PIXEL · ROGUELITE · SURVIVOR",
   "hero.title.l1": "오염된 바다,",
@@ -130,9 +127,6 @@ window.I18N.en = {
   "inaction.f1": "▸ 50+ weapon and relic combinations",
   "inaction.f2": "▸ 6 seas · 6 bosses · endless survival mode",
   "inaction.f3": "▸ Permanent upgrades — stronger with every dive",
-  "gameplay.eyebrow": "GAMEPLAY / MOMENTS",
-  "gameplay.title": "Moments the Sea Remembers",
-  "gameplay.subtitle": "Wide explosions, freezes, sigils, boss fights — all within one dive.",
 
   "hero.tagline": "PIXEL · ROGUELITE · SURVIVOR",
   "hero.title.l1": "A polluted sea,",
@@ -240,9 +234,6 @@ window.I18N.ja = {
   "inaction.f1": "▸ 50種以上の武器・遺物の組み合わせ",
   "inaction.f2": "▸ 6つの海域 · 6体のボス · 無限サバイバル",
   "inaction.f3": "▸ 恒久強化 — ダイブごとに強く",
-  "gameplay.eyebrow": "GAMEPLAY / MOMENTS",
-  "gameplay.title": "海が記憶する瞬間",
-  "gameplay.subtitle": "広域の炸裂、凍結、魔法陣、ボス戦 — すべてはひと潜りの中に。",
 
   "hero.tagline": "PIXEL · ROGUELITE · SURVIVOR",
   "hero.title.l1": "汚染された海、",
@@ -350,9 +341,6 @@ window.I18N["zh-CN"] = {
   "inaction.f1": "▸ 50 种以上武器与遗物的组合",
   "inaction.f2": "▸ 6 片海域 · 6 个 BOSS · 无尽生存模式",
   "inaction.f3": "▸ 永久强化 — 每次潜行更强",
-  "gameplay.eyebrow": "GAMEPLAY / MOMENTS",
-  "gameplay.title": "海所铭记的瞬间",
-  "gameplay.subtitle": "广域爆炸、冰冻、法阵、Boss 战——全都在一次潜行之中。",
 
   "hero.tagline": "PIXEL · ROGUELITE · SURVIVOR",
   "hero.title.l1": "被污染的海洋，",
@@ -460,9 +448,6 @@ window.I18N["zh-TW"] = {
   "inaction.f1": "▸ 50 種以上武器與遺物的組合",
   "inaction.f2": "▸ 6 片海域 · 6 個 BOSS · 無盡生存模式",
   "inaction.f3": "▸ 永久強化 — 每次潛行更強",
-  "gameplay.eyebrow": "GAMEPLAY / MOMENTS",
-  "gameplay.title": "海所銘記的瞬間",
-  "gameplay.subtitle": "廣域爆炸、冰凍、法陣、Boss 戰——全都在一次潛行之中。",
 
   "hero.tagline": "PIXEL · ROGUELITE · SURVIVOR",
   "hero.title.l1": "被污染的海洋，",
@@ -570,9 +555,6 @@ window.I18N.ru = {
   "inaction.f1": "▸ Более 50 комбинаций оружия и реликвий",
   "inaction.f2": "▸ 6 морей · 6 боссов · бесконечный режим выживания",
   "inaction.f3": "▸ Постоянные улучшения — сильнее с каждым погружением",
-  "gameplay.eyebrow": "GAMEPLAY / MOMENTS",
-  "gameplay.title": "Мгновения, которые помнит море",
-  "gameplay.subtitle": "Взрывы, заморозка, печати, боссы — всё в одном погружении.",
 
   "hero.tagline": "PIXEL · ROGUELITE · SURVIVOR",
   "hero.title.l1": "Отравленное море —",
@@ -680,9 +662,6 @@ window.I18N.es = {
   "inaction.f1": "▸ Más de 50 combinaciones de armas y reliquias",
   "inaction.f2": "▸ 6 mares · 6 jefes · modo supervivencia infinita",
   "inaction.f3": "▸ Mejoras permanentes — más fuerte cada inmersión",
-  "gameplay.eyebrow": "GAMEPLAY / MOMENTS",
-  "gameplay.title": "Momentos que el mar recuerda",
-  "gameplay.subtitle": "Explosiones amplias, congelaciones, sellos, jefes — todo en una sola inmersión.",
 
   "hero.tagline": "PIXEL · ROGUELITE · SURVIVOR",
   "hero.title.l1": "Un mar contaminado,",
@@ -790,9 +769,6 @@ window.I18N["pt-BR"] = {
   "inaction.f1": "▸ Mais de 50 combinações de armas e relíquias",
   "inaction.f2": "▸ 6 mares · 6 chefes · modo sobrevivência infinita",
   "inaction.f3": "▸ Melhorias permanentes — mais forte a cada mergulho",
-  "gameplay.eyebrow": "GAMEPLAY / MOMENTS",
-  "gameplay.title": "Momentos que o mar guarda",
-  "gameplay.subtitle": "Explosões amplas, congelamentos, selos, chefes — tudo em um único mergulho.",
 
   "hero.tagline": "PIXEL · ROGUELITE · SURVIVOR",
   "hero.title.l1": "Um mar contaminado,",
@@ -900,9 +876,6 @@ window.I18N.de = {
   "inaction.f1": "▸ Über 50 Waffen- und Reliktkombinationen",
   "inaction.f2": "▸ 6 Meere · 6 Bosse · endloser Überlebensmodus",
   "inaction.f3": "▸ Dauerhafte Upgrades — stärker mit jedem Tauchgang",
-  "gameplay.eyebrow": "GAMEPLAY / MOMENTS",
-  "gameplay.title": "Momente, die das Meer behält",
-  "gameplay.subtitle": "Flächige Explosionen, Frost, Siegel, Bosskämpfe — alles in einem Tauchgang.",
 
   "hero.tagline": "PIXEL · ROGUELITE · SURVIVOR",
   "hero.title.l1": "Ein vergiftetes Meer,",
@@ -1010,9 +983,6 @@ window.I18N.fr = {
   "inaction.f1": "▸ Plus de 50 combinaisons d'armes et de reliques",
   "inaction.f2": "▸ 6 mers · 6 boss · mode survie infinie",
   "inaction.f3": "▸ Améliorations permanentes — plus fort à chaque plongée",
-  "gameplay.eyebrow": "GAMEPLAY / MOMENTS",
-  "gameplay.title": "Les instants dont la mer se souvient",
-  "gameplay.subtitle": "Explosions, gel, sceaux, combats de boss — tout dans une seule plongée.",
 
   "hero.tagline": "PIXEL · ROGUELITE · SURVIVOR",
   "hero.title.l1": "Une mer empoisonnée,",
