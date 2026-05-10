@@ -1,0 +1,1457 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>WHALE SURVIVORS — 오염된 바다, 단 한 마리의 고래</title>
+<meta name="description" content="고래 한 마리가 오염된 바다 깊숙한 곳, 모든 것의 근원을 향해 헤엄친다. 도트 인디 서바이버 액션 게임 — Whale Survivors." />
+<link rel="icon" href="assets/favicon.ico" />
+<link rel="preconnect" href="https://fonts.googleapis.com" />
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+<link href="https://fonts.googleapis.com/css2?family=Press+Start+2P&family=VT323&display=swap" rel="stylesheet" />
+<style>
+  /* ----- Design tokens (from game) ----- */
+  :root{
+    --abyss:   hsl(220 70% 4%);
+    --deep:    hsl(215 65% 10%);
+    --mid:     hsl(200 55% 18%);
+    --shallow: hsl(190 60% 35%);
+    --foam:    hsl(180 65% 75%);
+    --cream:   hsl(45 70% 88%);
+    --sun:     hsl(45 95% 60%);
+    --coral:   hsl(12 85% 60%);
+    --kelp:    hsl(140 50% 38%);
+    --blood:   hsl(0 75% 45%);
+    --xp:      hsl(195 95% 60%);
+
+    --fs-h1: 26px;
+    --fs-h2: 20px;
+    --fs-h3: 15px;
+    --fs-body: 18px;     /* VT323는 여유롭게 */
+    --fs-detail: 14px;
+    --fs-tip: 11px;
+
+    --pixel-border: 4px;
+  }
+
+  /* ----- Reset ----- */
+  *{ box-sizing:border-box; margin:0; padding:0; }
+  html,body{ background:var(--abyss); color:var(--cream); }
+  img{ display:block; max-width:100%; image-rendering:pixelated; image-rendering:crisp-edges; }
+  a{ color:inherit; text-decoration:none; }
+
+  body{
+    font-family: 'VT323', 'Courier New', monospace;
+    font-size: var(--fs-body);
+    line-height: 1.5;
+    letter-spacing: 0.02em;
+    overflow-x:hidden;
+    background:
+      radial-gradient(ellipse at top, hsl(200 55% 14%) 0%, var(--abyss) 60%) fixed;
+  }
+  body::before{
+    /* scanline overlay */
+    content:"";
+    position:fixed; inset:0; pointer-events:none; z-index:200;
+    background: repeating-linear-gradient(
+      to bottom,
+      rgba(0,0,0,0.0) 0px,
+      rgba(0,0,0,0.0) 2px,
+      rgba(0,0,0,0.18) 3px,
+      rgba(0,0,0,0.0) 4px
+    );
+    mix-blend-mode: multiply;
+  }
+
+  /* ----- Pixel typography ----- */
+  .pixel{ font-family:'Press Start 2P', 'VT323', monospace; letter-spacing:0; }
+  h1,h2,h3{ font-family:'Press Start 2P', monospace; line-height:1.4; color:var(--cream); }
+  h1{ font-size: var(--fs-h1); }
+  h2{ font-size: var(--fs-h2); }
+  h3{ font-size: var(--fs-h3); }
+
+  /* ----- Pixel border helper ----- */
+  .pixel-box{
+    position:relative;
+    background: var(--deep);
+    border: var(--pixel-border) solid var(--mid);
+    box-shadow:
+      0 0 0 var(--pixel-border) var(--abyss),
+      0 0 0 calc(var(--pixel-border) * 2) var(--shallow);
+  }
+  .pixel-box::after{
+    content:"";
+    position:absolute; inset:0;
+    pointer-events:none;
+    background: repeating-linear-gradient(
+      to bottom,
+      transparent 0 3px,
+      rgba(255,255,255,0.02) 3px 4px
+    );
+  }
+
+  /* ----- NAV ----- */
+  .nav{
+    position:sticky; top:0; z-index:100;
+    background: hsla(220 70% 4% / 0.85);
+    backdrop-filter: blur(2px);
+    border-bottom: 2px solid var(--mid);
+  }
+  .nav-inner{
+    max-width: 1200px; margin:0 auto;
+    padding: 14px 24px;
+    display:flex; align-items:center; justify-content:space-between; gap:16px;
+  }
+  .brand{
+    display:flex; align-items:center; gap:12px;
+    font-family:'Press Start 2P', monospace;
+    font-size: 14px; color: var(--sun);
+  }
+  .brand img{ width:40px; height:40px; image-rendering:pixelated; image-rendering:crisp-edges; }
+  .nav ul{
+    display:flex; gap:22px; list-style:none;
+    font-family:'Press Start 2P', monospace;
+    font-size: var(--fs-tip);
+  }
+  .nav a{ color: var(--foam); transition: color .15s; }
+  .nav a:hover{ color: var(--sun); }
+  @media (max-width: 720px){
+    .nav ul{ display:none; }
+  }
+
+  /* highlight inline span used in localized HTML */
+  .hl{ color: var(--sun); }
+
+  /* ----- Language switcher ----- */
+  .lang-wrap{ position:relative; }
+  .lang-btn{
+    display:inline-flex; align-items:center; gap:8px;
+    font-family:'Press Start 2P', monospace;
+    font-size: var(--fs-tip);
+    padding: 9px 12px;
+    color: var(--foam);
+    background: var(--abyss);
+    border: 2px solid var(--shallow);
+    cursor:pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .lang-btn:hover{ border-color: var(--sun); color: var(--sun); }
+  .lang-btn .arrow{ font-size: 8px; line-height:1; }
+  .lang-menu{
+    position:absolute; top: calc(100% + 8px); right: 0;
+    min-width: 180px;
+    background: var(--deep);
+    border: 2px solid var(--shallow);
+    box-shadow: 0 6px 0 var(--abyss);
+    padding: 6px;
+    display:none;
+    z-index: 120;
+  }
+  .lang-menu.open{ display:block; }
+  .lang-menu button{
+    display:block; width:100%; text-align:left;
+    font-family:'VT323', monospace;
+    font-size: 18px; color: var(--foam);
+    padding: 8px 12px;
+    background: transparent; border:none; cursor:pointer;
+  }
+  .lang-menu button:hover{ background: var(--mid); color: var(--cream); }
+  .lang-menu button.active{ color: var(--sun); }
+  .lang-menu button.active::before{ content:"▸ "; color: var(--sun); }
+
+  /* ----- BGM toggle ----- */
+  .bgm-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:40px; height:40px;
+    font-family:'Press Start 2P', monospace;
+    font-size: 14px;
+    color: var(--foam);
+    background: var(--abyss);
+    border: 2px solid var(--shallow);
+    cursor:pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .bgm-btn:hover{ border-color: var(--sun); color: var(--sun); }
+  .bgm-btn[aria-pressed="true"]{ color: var(--sun); border-color: var(--sun); }
+  .bgm-btn .wave{
+    display:inline-block;
+    animation: wave-anim 1.2s ease-in-out infinite;
+  }
+  .bgm-btn[aria-pressed="false"] .wave{ animation:none; opacity:0.4; }
+  @keyframes wave-anim{
+    0%,100%{ transform: scaleY(1); }
+    50%   { transform: scaleY(1.4); }
+  }
+
+  /* ----- HERO (full-bleed video slideshow) ----- */
+  .hero{
+    position:relative;
+    min-height: 100vh;
+    display:flex; align-items:center; justify-content:center;
+    padding: 90px 24px 100px;
+    overflow:hidden;
+  }
+  .hero-slideshow{
+    position:absolute; inset:0; z-index:0;
+    background: var(--abyss);
+  }
+  .hero-slide{
+    position:absolute; inset:0;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .hero-slide.active{ opacity: 1; }
+  .hero-slide video{
+    width:100%; height:100%; object-fit:cover; display:block;
+    image-rendering: pixelated;
+  }
+  .hero-overlay{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background:
+      radial-gradient(ellipse at center, hsla(220 70% 4% / 0.25) 0%, hsla(220 70% 4% / 0.55) 60%, hsla(220 70% 4% / 0.92) 100%),
+      linear-gradient(to bottom, hsla(220 70% 4% / 0.55) 0%, hsla(220 70% 4% / 0.05) 35%, hsla(220 70% 4% / 0.55) 70%, hsla(220 70% 4% / 0.98) 100%);
+  }
+  .hero-grid{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 32px 32px;
+    mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+  }
+  .bubble{
+    position:absolute; border-radius:50%;
+    background: hsla(180 65% 75% / 0.22);
+    box-shadow: inset 0 0 0 2px hsla(180 65% 75% / 0.55);
+    animation: rise linear infinite;
+    z-index:2;
+  }
+  @keyframes rise{
+    0%   { transform: translateY(40vh) scale(0.7); opacity:0; }
+    20%  { opacity: .9; }
+    100% { transform: translateY(-110vh) scale(1.1); opacity:0; }
+  }
+  .hero-content{
+    position:relative; z-index:3;
+    max-width: 1000px; width:100%;
+    text-align:center;
+    display:flex; flex-direction:column; align-items:center;
+  }
+  /* slideshow controls */
+  .hero-controls{
+    position:absolute; bottom: 30px; left:0; right:0;
+    z-index:4;
+    display:flex; align-items:center; justify-content:center; gap: 16px;
+  }
+  .hero-arrow{
+    width:36px; height:36px;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-family:'Press Start 2P', monospace; font-size: 12px;
+    color: var(--foam);
+    background: hsla(220 70% 4% / 0.6);
+    border: 2px solid var(--shallow);
+    cursor:pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .hero-arrow:hover{ border-color: var(--sun); color: var(--sun); }
+  .hero-dots{
+    display:flex; gap: 10px; align-items:center;
+  }
+  .hero-dot{
+    width: 24px; height: 6px;
+    background: hsla(180 65% 75% / 0.35);
+    border: none;
+    cursor:pointer;
+    transition: background .2s, width .2s;
+    padding: 0;
+  }
+  .hero-dot:hover{ background: hsla(180 65% 75% / 0.6); }
+  .hero-dot.active{
+    background: var(--sun);
+    width: 36px;
+  }
+  .hero-scroll-hint{
+    position:absolute; bottom: 8px; left:0; right:0;
+    z-index:4; text-align:center;
+    font-family:'Press Start 2P', monospace; font-size: 8px;
+    color: var(--foam);
+    opacity: 0.6;
+    animation: scrollPulse 2s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes scrollPulse{
+    0%,100%{ transform: translateY(0); opacity:0.5; }
+    50%   { transform: translateY(4px); opacity:0.9; }
+  }
+  .tagline{
+    display:inline-block;
+    font-family:'Press Start 2P', monospace;
+    font-size: var(--fs-tip);
+    color: var(--xp);
+    background: hsla(220 70% 4% / 0.55);
+    border: 2px solid var(--xp);
+    padding: 8px 14px;
+    margin-bottom: 28px;
+    backdrop-filter: blur(2px);
+    text-shadow: 2px 2px 0 var(--abyss);
+  }
+  .hero h1{
+    font-size: clamp(32px, 5.2vw, 60px);
+    line-height: 1.25;
+    color: var(--cream);
+    text-shadow:
+      3px 3px 0 var(--abyss),
+      6px 6px 0 hsl(195 95% 60% / 0.5),
+      0 0 30px hsla(220 70% 4% / 0.9);
+    margin-bottom: 22px;
+  }
+  .hero h1 .accent{ color: var(--sun); display:block; }
+  .hero p.lead{
+    font-size: 22px;
+    color: var(--cream);
+    max-width: 620px;
+    margin: 0 auto 36px;
+    text-shadow: 2px 2px 0 var(--abyss), 0 0 20px hsla(220 70% 4% / 0.95);
+  }
+  .cta-row{ display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
+  .btn{
+    display:inline-flex; align-items:center; gap:10px;
+    font-family:'Press Start 2P', monospace;
+    font-size: var(--fs-tip);
+    padding: 16px 22px;
+    background: var(--sun); color: var(--abyss);
+    border:none;
+    box-shadow:
+      4px 0 0 var(--abyss),
+      -4px 0 0 var(--abyss),
+      0 4px 0 var(--abyss),
+      0 -4px 0 var(--abyss),
+      4px 4px 0 hsl(45 95% 40%);
+    cursor:pointer;
+    transition: transform .1s, box-shadow .1s;
+    text-transform: uppercase;
+  }
+  .btn:hover{
+    transform: translate(2px, 2px);
+    box-shadow:
+      4px 0 0 var(--abyss),
+      -4px 0 0 var(--abyss),
+      0 4px 0 var(--abyss),
+      0 -4px 0 var(--abyss),
+      2px 2px 0 hsl(45 95% 40%);
+  }
+  .btn.secondary{
+    background: transparent; color: var(--foam);
+    box-shadow:
+      4px 0 0 var(--foam),
+      -4px 0 0 var(--foam),
+      0 4px 0 var(--foam),
+      0 -4px 0 var(--foam);
+  }
+  .btn.secondary:hover{ color: var(--sun); }
+
+
+  /* ----- Section base ----- */
+  section.block{
+    max-width: 1200px; margin: 0 auto;
+    padding: 90px 24px;
+  }
+  .section-head{
+    text-align:center; margin-bottom: 56px;
+  }
+  .section-head .eyebrow{
+    font-family:'Press Start 2P', monospace;
+    font-size: var(--fs-tip); color: var(--sun);
+    letter-spacing: 2px; margin-bottom: 14px;
+  }
+  .section-head h2{
+    color: var(--cream);
+    text-shadow: 2px 2px 0 var(--abyss);
+  }
+  .section-head p{
+    margin-top: 18px; color: var(--foam); max-width: 680px;
+    margin-left:auto; margin-right:auto; font-size: 19px;
+  }
+
+  /* ----- Story / Prologue ----- */
+  .prologue{
+    display:grid; grid-template-columns: 1fr 1fr; gap: 40px; align-items:center;
+  }
+  @media (max-width: 880px){ .prologue{ grid-template-columns: 1fr; } }
+  .prologue-art{
+    position:relative;
+    border: var(--pixel-border) solid var(--shallow);
+    box-shadow:
+      0 0 0 var(--pixel-border) var(--abyss),
+      0 0 40px hsla(195 95% 60% / 0.2);
+    overflow:hidden;
+  }
+  .prologue-art img{ width:100%; aspect-ratio: 4 / 3; object-fit:cover; }
+  .prologue-quote{
+    border-left: 4px solid var(--sun);
+    padding: 6px 0 6px 22px;
+    font-size: 22px;
+    color: var(--cream);
+    font-style: italic;
+  }
+  .prologue p{ color: var(--foam); margin-top: 18px; }
+
+  /* ----- Stages ----- */
+  .stages{
+    display:grid; grid-template-columns: repeat(3, 1fr); gap: 24px;
+  }
+  @media (max-width: 980px){ .stages{ grid-template-columns: repeat(2, 1fr); } }
+  @media (max-width: 600px){ .stages{ grid-template-columns: 1fr; } }
+  .stage-card{
+    position:relative; overflow:hidden;
+    background: var(--deep);
+    border: 4px solid var(--mid);
+    box-shadow: 0 0 0 4px var(--abyss);
+    transition: transform .2s, border-color .2s;
+  }
+  .stage-card:hover{
+    transform: translateY(-4px);
+    border-color: var(--sun);
+  }
+  .stage-card .img{
+    position:relative;
+    aspect-ratio: 16 / 10;
+    overflow:hidden;
+    background: var(--abyss);
+  }
+  .stage-card .img img,
+  .stage-card .img video{
+    position:absolute; inset:0;
+    width:100%; height:100%; object-fit:cover;
+    transition: opacity .4s, transform .4s;
+  }
+  .stage-card .img video{ opacity:0; }
+  .stage-card:hover .img img{ opacity:0; }
+  .stage-card:hover .img video{ opacity:1; }
+  .stage-card .img::after{
+    content:"▶ HOVER";
+    position:absolute; bottom:8px; right:10px;
+    font-family:'Press Start 2P', monospace; font-size: 8px;
+    color: var(--sun); background: hsla(220 70% 4% / 0.7);
+    padding: 4px 6px;
+    pointer-events:none;
+    transition: opacity .2s;
+  }
+  .stage-card:hover .img::after{ opacity:0; }
+  .stage-card .meta{ padding: 18px 18px 22px; }
+  .stage-card .num{
+    font-family:'Press Start 2P', monospace;
+    font-size: var(--fs-tip); color: var(--sun);
+    letter-spacing: 2px; margin-bottom: 10px;
+  }
+  .stage-card h3{ color: var(--cream); margin-bottom: 8px; }
+  .stage-card .boss{
+    font-size: 17px; color: var(--coral);
+    margin: 6px 0 10px;
+  }
+  .stage-card p{ color: var(--foam); font-size: 17px; }
+  .stage-card .badge{
+    position:absolute; top:10px; left:10px;
+    font-family:'Press Start 2P', monospace; font-size: 9px;
+    padding: 6px 8px;
+    background: var(--abyss); color: var(--sun);
+    border: 2px solid var(--sun);
+  }
+
+  /* ----- In Action (large showcase video) ----- */
+  .in-action{
+    display:grid; grid-template-columns: 1.4fr 1fr; gap: 36px; align-items:center;
+  }
+  @media (max-width: 880px){ .in-action{ grid-template-columns: 1fr; } }
+  .in-action-video{
+    position:relative;
+    border: 4px solid var(--shallow);
+    box-shadow:
+      0 0 0 4px var(--abyss),
+      0 0 60px hsla(195 95% 60% / 0.25);
+    overflow:hidden;
+    background: var(--abyss);
+  }
+  .in-action-video video{
+    width:100%; height:auto; display:block;
+    image-rendering: pixelated;
+  }
+  .in-action-video::after{
+    content:"";
+    position:absolute; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(
+      to bottom, transparent 0 2px, rgba(0,0,0,0.18) 3px 4px
+    );
+    mix-blend-mode: multiply;
+  }
+  .in-action-text h2{
+    color: var(--cream); margin-bottom: 14px;
+    text-shadow: 2px 2px 0 var(--abyss);
+  }
+  .in-action-text .lead{
+    color: var(--foam); font-size: 19px; margin-bottom: 18px;
+  }
+  .in-action-text ul{
+    list-style:none; display:flex; flex-direction:column; gap:10px;
+  }
+  .in-action-text li{
+    font-size: 17px; color: var(--cream);
+    padding-left: 18px; position:relative;
+  }
+  .in-action-text li::before{
+    content:"▸"; position:absolute; left:0;
+    color: var(--sun);
+  }
+
+  /* ----- Gameplay grid (mosaic) ----- */
+  .gameplay{
+    display:grid;
+    grid-template-columns: repeat(6, 1fr);
+    grid-auto-rows: 130px;
+    gap: 14px;
+  }
+  @media (max-width: 980px){
+    .gameplay{ grid-template-columns: repeat(4, 1fr); grid-auto-rows: 110px; }
+  }
+  @media (max-width: 600px){
+    .gameplay{ grid-template-columns: repeat(2, 1fr); grid-auto-rows: 130px; }
+  }
+  .gameplay-tile{
+    position:relative; overflow:hidden;
+    border: 3px solid var(--mid);
+    background: var(--abyss);
+    transition: border-color .2s, transform .2s;
+  }
+  .gameplay-tile:hover{ border-color: var(--sun); transform: translateY(-3px); }
+  .gameplay-tile video{
+    width:100%; height:100%; object-fit:cover; display:block;
+    image-rendering: pixelated;
+  }
+  /* mosaic spans */
+  .gameplay-tile.large{ grid-column: span 3; grid-row: span 2; }
+  .gameplay-tile.tall{  grid-column: span 2; grid-row: span 2; }
+  .gameplay-tile.wide{  grid-column: span 3; grid-row: span 1; }
+  .gameplay-tile.normal{ grid-column: span 2; grid-row: span 1; }
+  @media (max-width: 980px){
+    .gameplay-tile.large{ grid-column: span 4; grid-row: span 2; }
+    .gameplay-tile.tall{  grid-column: span 2; grid-row: span 2; }
+    .gameplay-tile.wide{  grid-column: span 4; grid-row: span 1; }
+    .gameplay-tile.normal{ grid-column: span 2; grid-row: span 1; }
+  }
+  @media (max-width: 600px){
+    .gameplay-tile.large,
+    .gameplay-tile.tall,
+    .gameplay-tile.wide,
+    .gameplay-tile.normal{ grid-column: span 2; grid-row: span 1; }
+  }
+  .gameplay-tile::after{
+    content:""; position:absolute; inset:0; pointer-events:none;
+    box-shadow: inset 0 0 30px hsla(220 70% 4% / 0.5);
+  }
+
+  /* ----- Bosses ----- */
+  .bosses{
+    display:grid; grid-template-columns: repeat(2, 1fr); gap: 24px;
+  }
+  @media (max-width: 720px){ .bosses{ grid-template-columns: 1fr; } }
+  .boss-card{
+    display:grid; grid-template-columns: 140px 1fr; gap: 18px;
+    background: var(--deep);
+    border: 4px solid var(--mid);
+    box-shadow: 0 0 0 4px var(--abyss);
+    padding: 18px;
+  }
+  .boss-card .portrait{
+    aspect-ratio: 1/1;
+    background: var(--abyss);
+    border: 2px solid var(--shallow);
+    overflow:hidden;
+  }
+  .boss-card .portrait img{ width:100%; height:100%; object-fit:cover; }
+  .boss-card h3{ color: var(--cream); margin-bottom: 6px; }
+  .boss-card .label{
+    font-family:'Press Start 2P', monospace; font-size: 9px;
+    color: var(--coral); margin-bottom: 12px; letter-spacing: 1px;
+  }
+  .boss-card .quote{
+    color: var(--foam); font-style:italic; font-size: 17px;
+    border-left: 3px solid var(--coral); padding-left: 12px;
+  }
+
+  /* ----- Features ----- */
+  .features{
+    display:grid; grid-template-columns: repeat(5, 1fr); gap: 18px;
+  }
+  @media (max-width: 980px){ .features{ grid-template-columns: repeat(3, 1fr); } }
+  @media (max-width: 600px){ .features{ grid-template-columns: repeat(2, 1fr); } }
+  .feature{
+    text-align:center;
+    background: var(--deep);
+    border: 4px solid var(--mid);
+    box-shadow: 0 0 0 4px var(--abyss);
+    padding: 24px 14px;
+    transition: border-color .2s;
+  }
+  .feature:hover{ border-color: var(--xp); }
+  .feature img{
+    width: 84px; height:84px; margin: 0 auto 14px;
+    object-fit:contain;
+  }
+  .feature h3{ font-size: 12px; margin-bottom: 8px; color: var(--cream); }
+  .feature p{ font-size: 15px; color: var(--foam); }
+
+  /* ----- Weapons ----- */
+  .weapons{
+    display:grid; grid-template-columns: repeat(2, 1fr); gap: 18px;
+  }
+  @media (max-width: 720px){ .weapons{ grid-template-columns: 1fr; } }
+  .weapon{
+    display:grid; grid-template-columns: 56px 1fr auto; gap: 16px; align-items:center;
+    background: var(--deep);
+    border: 3px solid var(--mid);
+    padding: 16px 18px;
+  }
+  .weapon .glyph{
+    width:56px; height:56px;
+    display:flex; align-items:center; justify-content:center;
+    background: var(--abyss);
+    border: 2px solid var(--shallow);
+    font-size: 32px;
+  }
+  .weapon h4{ font-family:'Press Start 2P', monospace; font-size: 11px; color: var(--cream); margin-bottom: 6px; }
+  .weapon p{ font-size: 16px; color: var(--foam); }
+  .weapon .tag{
+    font-family:'Press Start 2P', monospace; font-size: 9px;
+    padding: 5px 8px; color: var(--abyss); background: var(--sun);
+    align-self: flex-start;
+  }
+  .weapon .tag.unique{ background: var(--xp); }
+  .weapon .tag.legend{ background: var(--coral); color: var(--cream); }
+
+  /* ----- Gallery ----- */
+  .gallery{
+    display:grid; grid-template-columns: repeat(4, 1fr); gap: 10px;
+  }
+  @media (max-width: 880px){ .gallery{ grid-template-columns: repeat(2, 1fr); } }
+  .gallery .tile{
+    aspect-ratio: 1/1;
+    overflow:hidden;
+    border: 3px solid var(--mid);
+    transition: border-color .2s, transform .2s;
+  }
+  .gallery .tile:hover{ border-color: var(--sun); transform: translateY(-3px); }
+  .gallery .tile img{ width:100%; height:100%; object-fit:cover; }
+
+  /* ----- Final CTA ----- */
+  .final{
+    text-align:center;
+    background:
+      linear-gradient(180deg, transparent, hsla(195 95% 60% / 0.1)),
+      var(--deep);
+    border-top: 4px solid var(--shallow);
+    border-bottom: 4px solid var(--shallow);
+    padding: 80px 24px;
+    margin-top: 40px;
+    position:relative;
+    overflow:hidden;
+  }
+  .final::before{
+    content:""; position:absolute; inset:0;
+    background-image:
+      linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
+    background-size: 24px 24px;
+  }
+  .final > *{ position:relative; }
+  .final h2{
+    color: var(--cream); margin-bottom: 14px;
+    text-shadow: 3px 3px 0 var(--abyss);
+  }
+  .final p{ color: var(--foam); margin-bottom: 28px; font-size: 20px; }
+
+  /* ----- Footer ----- */
+  footer{
+    background: var(--abyss);
+    padding: 38px 24px;
+    border-top: 2px solid var(--mid);
+    text-align:center;
+  }
+  footer .row{
+    max-width: 1100px; margin:0 auto;
+    display:flex; flex-wrap:wrap; justify-content:space-between; align-items:center; gap:16px;
+  }
+  footer .copy{
+    font-family:'Press Start 2P', monospace;
+    font-size: 9px; color: var(--foam);
+  }
+  footer .credits{ color: var(--foam); font-size: 15px; }
+  footer .credits .heart{ color: var(--coral); }
+
+  /* Sprite walk on bottom-left — single 50x50 frame from a 200x50 sprite sheet */
+  .walking-whale{
+    position:fixed; bottom:24px; left:24px; z-index:50;
+    width:64px; height:64px;
+    background-image: url('assets/character/walk_right.png');
+    background-repeat: no-repeat;
+    background-size: 256px 64px;       /* 4 frames × 64px each, one frame visible */
+    background-position: 0 0;
+    image-rendering: pixelated;
+    pointer-events: none;
+    opacity: 0.9;
+    animation: walkFrames 0.5s steps(4) infinite, whaleHop 1.6s ease-in-out infinite;
+  }
+  @keyframes walkFrames{
+    from { background-position:    0 0; }
+    to   { background-position: -256px 0; }
+  }
+  @keyframes whaleHop{
+    0%,100%{ transform: translateY(0); }
+    50%   { transform: translateY(-4px); }
+  }
+  @media (max-width: 720px){ .walking-whale{ display:none; } }
+</style>
+</head>
+<body>
+
+<!-- ========= NAV ========= -->
+<header class="nav">
+  <div class="nav-inner">
+    <a href="#top" class="brand">
+      <img src="assets/lobby/game-icon.png" alt="Whale Survivors logo" />
+      <span>WHALE SURVIVORS</span>
+    </a>
+    <nav>
+      <ul>
+        <li><a href="#story" data-i18n="nav.story">STORY</a></li>
+        <li><a href="#in-action" data-i18n="nav.gameplay">GAMEPLAY</a></li>
+        <li><a href="#stages" data-i18n="nav.stages">STAGES</a></li>
+        <li><a href="#bosses" data-i18n="nav.bosses">BOSSES</a></li>
+        <li><a href="#weapons" data-i18n="nav.weapons">WEAPONS</a></li>
+      </ul>
+    </nav>
+    <button class="bgm-btn" id="bgmBtn" aria-pressed="false" aria-label="배경음 재생/정지" title="BGM">
+      <span class="wave">♪</span>
+    </button>
+    <div class="lang-wrap">
+      <button class="lang-btn" id="langBtn" aria-haspopup="true" aria-expanded="false">
+        <span id="langLabel">한국어</span>
+        <span class="arrow">▼</span>
+      </button>
+      <div class="lang-menu" id="langMenu" role="menu"></div>
+    </div>
+  </div>
+  <audio id="bgm" src="assets/sounds/lobby.mp3" loop preload="auto"></audio>
+</header>
+
+<!-- ========= HERO (full-bleed video slideshow) ========= -->
+<section id="top" class="hero">
+  <div class="hero-slideshow" id="heroSlideshow">
+    <div class="hero-slide active">
+      <video src="assets/clips/g06.mp4" muted loop playsinline preload="auto" poster="assets/posters/g06.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g01.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g01.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g03.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g03.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g04.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g04.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g05.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g05.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g08.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g08.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g11.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g11.webp"></video>
+    </div>
+  </div>
+  <div class="hero-overlay"></div>
+  <div class="hero-grid"></div>
+
+  <!-- decorative bubbles -->
+  <span class="bubble" style="left:8%;  width:14px; height:14px; animation-duration:9s;  animation-delay:0s;"></span>
+  <span class="bubble" style="left:18%; width:8px;  height:8px;  animation-duration:7s;  animation-delay:2s;"></span>
+  <span class="bubble" style="left:32%; width:20px; height:20px; animation-duration:11s; animation-delay:4s;"></span>
+  <span class="bubble" style="left:48%; width:10px; height:10px; animation-duration:8s;  animation-delay:1s;"></span>
+  <span class="bubble" style="left:62%; width:16px; height:16px; animation-duration:10s; animation-delay:3s;"></span>
+  <span class="bubble" style="left:78%; width:6px;  height:6px;  animation-duration:7s;  animation-delay:0s;"></span>
+  <span class="bubble" style="left:90%; width:12px; height:12px; animation-duration:9s;  animation-delay:5s;"></span>
+
+  <div class="hero-content">
+    <span class="tagline" data-i18n="hero.tagline">PIXEL · ROGUELITE · SURVIVOR</span>
+    <h1>
+      <span data-i18n="hero.title.l1">오염된 바다,</span>
+      <span class="accent" data-i18n="hero.title.l2">단 한 마리의 고래</span>
+    </h1>
+    <p class="lead" data-i18n="hero.lead">
+      흐름이 달라졌다. 산호는 이웃을 잠식하고, 수호자들은 서로를 먹기 시작했다.
+      고래는 그 방향으로 헤엄쳤다 — 되돌아올 보장도 없이.
+    </p>
+    <div class="cta-row">
+      <a href="#story" class="btn" data-i18n="cta.start">▶ 모험 시작</a>
+      <a href="#stages" class="btn secondary" data-i18n="cta.viewStages">스테이지 보기</a>
+    </div>
+  </div>
+
+  <div class="hero-controls">
+    <button class="hero-arrow" id="heroPrev" aria-label="이전 클립">◀</button>
+    <div class="hero-dots" id="heroDots"></div>
+    <button class="hero-arrow" id="heroNext" aria-label="다음 클립">▶</button>
+  </div>
+  <div class="hero-scroll-hint">▼ SCROLL</div>
+</section>
+
+<!-- ========= STORY ========= -->
+<section id="story" class="block">
+  <div class="section-head">
+    <div class="eyebrow" data-i18n="prologue.eyebrow">PROLOGUE / 序</div>
+    <h2 data-i18n="prologue.title">바다가 변하던 날</h2>
+    <p data-i18n="prologue.subtitle">리바이어던이 깨어났다. 그것은 의도하지 않았다. 깨어남 그 자체가 오염이었다.</p>
+  </div>
+
+  <div class="prologue">
+    <div class="prologue-art">
+      <img src="assets/scenes/INT_01.webp" alt="" />
+    </div>
+    <div>
+      <div class="prologue-quote" data-i18n-html="prologue.quote">
+        "오래전부터 고래는 바다의 흐름을 읽는 자였다.<br/>
+        흐름이 바뀌면 바다가 아프다는 것을 고래는 몸으로 알았다."
+      </div>
+      <p data-i18n="prologue.p1">
+        리바이어던 — 태초부터 바다 깊숙이 잠들어 있던 원시 생명체 — 이 깨어났다.
+        그것의 의식이 바다에 스며들자 산호는 이웃을 삼키기 시작했고,
+        빙하는 생명을 얼려 죽였다.
+      </p>
+      <p style="margin-top:12px;" data-i18n-html="prologue.p2">
+        고래는 적을 증오하지 않는다. 모두 한때 바다의 일부였음을 알기에.
+        그래서 이 싸움은 승리가 아니라 <span class="hl">치유</span>다.
+      </p>
+    </div>
+  </div>
+</section>
+
+<!-- ========= IN ACTION ========= -->
+<section id="in-action" class="block">
+  <div class="section-head">
+    <div class="eyebrow" data-i18n="inaction.eyebrow">IN ACTION / GAMEPLAY</div>
+    <h2 data-i18n="inaction.title">노래는 무기가, 무리는 풍경이 된다</h2>
+    <p data-i18n="inaction.subtitle">한 번의 다이브 속에서 펼쳐지는 광기의 안무.</p>
+  </div>
+
+  <div class="in-action">
+    <div class="in-action-video">
+      <video src="assets/clips/g02.mp4" autoplay muted loop playsinline preload="auto" poster="assets/posters/g02.webp"></video>
+    </div>
+    <div class="in-action-text">
+      <h2 data-i18n="inaction.heading">LV40 — 풀파워의 노래</h2>
+      <p class="lead" data-i18n="inaction.lead">레벨업을 거치며 무기가 진화한다. 후반부엔 화면이 곧 무기가 된다.</p>
+      <ul>
+        <li data-i18n="inaction.f1">▸ 50종 이상의 무기 · 유물 조합</li>
+        <li data-i18n="inaction.f2">▸ 6개 해역 · 6개 보스 · 무한 생존 모드</li>
+        <li data-i18n="inaction.f3">▸ 영구 강화로 매 다이브 더 강하게</li>
+      </ul>
+    </div>
+  </div>
+</section>
+
+<!-- ========= STAGES ========= -->
+<section id="stages" class="block">
+  <div class="section-head">
+    <div class="eyebrow" data-i18n="stages.eyebrow">STAGES / 6 ZONES</div>
+    <h2 data-i18n="stages.title">여섯 해역, 여섯 광기</h2>
+    <p data-i18n="stages.subtitle">각 해역마다 한때 바다를 지키던 수호자들이 있다 — 지금은 모두 오염된 채.</p>
+  </div>
+
+  <div class="stages">
+    <article class="stage-card">
+      <span class="badge">STAGE 01</span>
+      <div class="img">
+        <img src="assets/scenes/S1_01.webp" alt="" />
+        <video src="assets/clips/g01.mp4" muted loop playsinline preload="none" data-clip></video>
+      </div>
+      <div class="meta">
+        <div class="num">CORAL REEF</div>
+        <h3 data-i18n="stage.1.name">산호 해역</h3>
+        <div class="boss" data-i18n="stage.1.boss">▣ 산호 군주 (Coral Lord)</div>
+        <p data-i18n="stage.1.desc">한때 바다 생명들의 요람. 지금은 산호가 독처럼 퍼져나간다. 합일만이 그들의 노래다.</p>
+      </div>
+    </article>
+
+    <article class="stage-card">
+      <span class="badge">STAGE 02</span>
+      <div class="img">
+        <img src="assets/scenes/S2_01.webp" alt="" />
+        <video src="assets/clips/g04.mp4" muted loop playsinline preload="none" data-clip></video>
+      </div>
+      <div class="meta">
+        <div class="num">GLACIER SEA</div>
+        <h3 data-i18n="stage.2.name">빙하 해역</h3>
+        <div class="boss" data-i18n="stage.2.boss">▣ 빙하 거북 (Glacial Turtle)</div>
+        <p data-i18n="stage.2.desc">차갑게, 모두 멈춘다. 보존의 의지가 영원한 정지로 왜곡된 빙하의 미궁.</p>
+      </div>
+    </article>
+
+    <article class="stage-card">
+      <span class="badge">STAGE 03</span>
+      <div class="img">
+        <img src="assets/scenes/S3_01.webp" alt="" />
+        <video src="assets/clips/g11.mp4" muted loop playsinline preload="none" data-clip></video>
+      </div>
+      <div class="meta">
+        <div class="num">SHIPWRECK ZONE</div>
+        <h3 data-i18n="stage.3.name">침몰선 해역</h3>
+        <div class="boss" data-i18n="stage.3.boss">▣ 유령선장 문어 (Ghost Captain)</div>
+        <p data-i18n="stage.3.desc">인간이 버리고 간 것들이 쌓인 무덤. 떠나지 못한 원한이 바다를 향해 돌아섰다.</p>
+      </div>
+    </article>
+
+    <article class="stage-card">
+      <span class="badge">STAGE 04</span>
+      <div class="img">
+        <img src="assets/scenes/S4_01.webp" alt="" />
+        <video src="assets/clips/g08.mp4" muted loop playsinline preload="none" data-clip></video>
+      </div>
+      <div class="meta">
+        <div class="num">THE ABYSS</div>
+        <h3 data-i18n="stage.4.name">심연</h3>
+        <div class="boss" data-i18n="stage.4.boss">▣ 심연의 눈 (Eye of the Abyss)</div>
+        <p data-i18n="stage.4.desc">빛이 닿지 않는 곳. 어둠 속에서 무언가가 고래를 관찰한다 — "흥미롭다."</p>
+      </div>
+    </article>
+
+    <article class="stage-card">
+      <span class="badge">STAGE 05</span>
+      <div class="img">
+        <img src="assets/scenes/S5_01.webp" alt="" />
+        <video src="assets/clips/g09.mp4" muted loop playsinline preload="none" data-clip></video>
+      </div>
+      <div class="meta">
+        <div class="num">LAVA RIFT</div>
+        <h3 data-i18n="stage.5.name">용암 해구</h3>
+        <div class="boss" data-i18n="stage.5.boss">▣ 리바이어던 (Leviathan)</div>
+        <p data-i18n="stage.5.desc">바다 깊은 곳, 지구의 심장부. 모든 오염이 시작된 근원. 소각 시작.</p>
+      </div>
+    </article>
+
+    <article class="stage-card">
+      <span class="badge">STAGE 06</span>
+      <div class="img">
+        <img src="assets/scenes/S6_01.webp" alt="" />
+        <video src="assets/clips/g10.mp4" muted loop playsinline preload="none" data-clip></video>
+      </div>
+      <div class="meta">
+        <div class="num">BEYOND THE END</div>
+        <h3 data-i18n="stage.6.name">끝 너머</h3>
+        <div class="boss" data-i18n="stage.6.boss">▣ 영원의 리바이어던</div>
+        <p data-i18n="stage.6.desc">끝은 없다. 영원히. — 그렇다면 영원히 싸우지. 무한 생존 모드.</p>
+      </div>
+    </article>
+  </div>
+</section>
+
+<!-- ========= BOSSES ========= -->
+<section id="bosses" class="block">
+  <div class="section-head">
+    <div class="eyebrow" data-i18n="bosses.eyebrow">BOSSES / VILLAINS WITH REASONS</div>
+    <h2 data-i18n="bosses.title">모두 한때, 바다의 일부였다</h2>
+    <p data-i18n="bosses.subtitle">그들은 악의가 없다. 다만 본능이 왜곡되었을 뿐.</p>
+  </div>
+
+  <div class="bosses">
+    <div class="boss-card">
+      <div class="portrait"><img src="assets/scenes/S1_02.webp" alt="" /></div>
+      <div>
+        <h3 data-i18n="boss.1.name">산호 군주</h3>
+        <div class="label">CORAL LORD · STAGE 1</div>
+        <div class="quote" data-i18n="boss.1.quote">"하나가 된다… 모두 하나가 된다…"</div>
+      </div>
+    </div>
+
+    <div class="boss-card">
+      <div class="portrait"><img src="assets/scenes/S2_03.webp" alt="" /></div>
+      <div>
+        <h3 data-i18n="boss.2.name">빙하 거북</h3>
+        <div class="label">GLACIAL TURTLE · STAGE 2</div>
+        <div class="quote" data-i18n="boss.2.quote">"차갑게… 모두… 멈춘다…"</div>
+      </div>
+    </div>
+
+    <div class="boss-card">
+      <div class="portrait"><img src="assets/scenes/S3_03.webp" alt="" /></div>
+      <div>
+        <h3 data-i18n="boss.3.name">유령선장 문어</h3>
+        <div class="label">GHOST CAPTAIN · STAGE 3</div>
+        <div class="quote" data-i18n="boss.3.quote">"놓지 않겠다. 이 배를. 이 바다를. 결코."</div>
+      </div>
+    </div>
+
+    <div class="boss-card">
+      <div class="portrait"><img src="assets/scenes/S5_05.webp" alt="" /></div>
+      <div>
+        <h3 data-i18n="boss.4.name">리바이어던</h3>
+        <div class="label">LEVIATHAN · FINAL</div>
+        <div class="quote" data-i18n="boss.4.quote">"소각 시작. 모든 불순물을 제거한다."</div>
+      </div>
+    </div>
+  </div>
+</section>
+
+<!-- ========= FEATURES ========= -->
+<section id="features" class="block">
+  <div class="section-head">
+    <div class="eyebrow" data-i18n="features.eyebrow">FEATURES / GAME MODES</div>
+    <h2 data-i18n="features.title">로비에서 만나는 다섯 가지</h2>
+    <p data-i18n="features.subtitle">달리고, 모으고, 영구 강화하라. 다음 다이브는 더 강해진 채로.</p>
+  </div>
+
+  <div class="features">
+    <div class="feature">
+      <img src="assets/icons/lobby-icon-select.png" alt="" />
+      <h3 data-i18n="feature.1.name">고래 선택</h3>
+      <p data-i18n="feature.1.desc">각자 다른 노래를 가진 고래들. 푸른 고래의 진동, 흰 고래의 빛.</p>
+    </div>
+    <div class="feature">
+      <img src="assets/icons/lobby-icon-meta.png" alt="" />
+      <h3 data-i18n="feature.2.name">영구 강화</h3>
+      <p data-i18n="feature.2.desc">모은 빛으로 다음 다이브를 위한 영구 능력을 새겨라.</p>
+    </div>
+    <div class="feature">
+      <img src="assets/icons/lobby-icon-codex.png" alt="" />
+      <h3 data-i18n="feature.3.name">도감</h3>
+      <p data-i18n="feature.3.desc">적과 무기, 유물 — 마주친 모든 존재의 기록.</p>
+    </div>
+    <div class="feature">
+      <img src="assets/icons/lobby-icon-history.png" alt="" />
+      <h3 data-i18n="feature.4.name">전적 기록</h3>
+      <p data-i18n="feature.4.desc">시간, 처치 수, 받은 피해 — 한 번의 다이브가 남기는 흔적.</p>
+    </div>
+    <div class="feature">
+      <img src="assets/icons/lobby-icon-achievements.png" alt="" />
+      <h3 data-i18n="feature.5.name">업적</h3>
+      <p data-i18n="feature.5.desc">숨겨진 도전과 보상. 진짜 바다는 더 깊은 곳에 있다.</p>
+    </div>
+  </div>
+</section>
+
+<!-- ========= WEAPONS ========= -->
+<section id="weapons" class="block">
+  <div class="section-head">
+    <div class="eyebrow" data-i18n="weapons.eyebrow">WEAPONS / 50+ TOOLS</div>
+    <h2 data-i18n="weapons.title">흐름은 노래가 되고, 노래는 무기가 된다</h2>
+    <p data-i18n="weapons.subtitle">거품, 음파, 산호 부메랑, 독 해파리, 따개비 방어 — 50종 이상의 무기와 유물 조합.</p>
+  </div>
+
+  <div class="weapons">
+    <div class="weapon">
+      <div class="glyph" style="color: var(--xp);">○</div>
+      <div>
+        <h4 data-i18n="weapon.1.name">버블 샷 — Bubble Shot</h4>
+        <p data-i18n="weapon.1.desc">전방으로 발사되는 거품. 관통 진화로 적의 무리를 꿰뚫는다.</p>
+      </div>
+      <span class="tag" data-i18n="tag.common">공통</span>
+    </div>
+    <div class="weapon">
+      <div class="glyph" style="color: var(--foam);">◎</div>
+      <div>
+        <h4 data-i18n="weapon.2.name">소나 파동 — Sonar Pulse</h4>
+        <p data-i18n="weapon.2.desc">사각 음파. 광역 적을 한 번에 흔들어 내쫓는다.</p>
+      </div>
+      <span class="tag" data-i18n="tag.common">공통</span>
+    </div>
+    <div class="weapon">
+      <div class="glyph" style="color: var(--cream);">❄</div>
+      <div>
+        <h4 data-i18n="weapon.3.name">얼음 파편 — Ice Shard</h4>
+        <p data-i18n="weapon.3.desc">나선형으로 발사 후 회귀. 적을 빙결시켜 정지시킨다.</p>
+      </div>
+      <span class="tag" data-i18n="tag.common">공통</span>
+    </div>
+    <div class="weapon">
+      <div class="glyph" style="color: var(--coral);">↯</div>
+      <div>
+        <h4 data-i18n="weapon.4.name">산호 부메랑 — Coral Boomerang</h4>
+        <p data-i18n="weapon.4.desc">발사 후 돌아오는 왕복 피해. 길게 늘여진 사선의 노래.</p>
+      </div>
+      <span class="tag" data-i18n="tag.common">공통</span>
+    </div>
+    <div class="weapon">
+      <div class="glyph" style="color: var(--sun);">✦</div>
+      <div>
+        <h4 data-i18n="weapon.5.name">불가사리 군단 — Starfish Legion</h4>
+        <p data-i18n="weapon.5.desc">주위를 도는 궤도형 군단. 가까이 오는 모든 것에 지속 피해.</p>
+      </div>
+      <span class="tag" data-i18n="tag.orbit">궤도</span>
+    </div>
+    <div class="weapon">
+      <div class="glyph" style="color: var(--xp);">♪</div>
+      <div>
+        <h4 data-i18n="weapon.6.name">푸른 노래 — Blue Song</h4>
+        <p data-i18n="weapon.6.desc">거대한 음파 발산. 푸른 고래만의 고유 무기.</p>
+      </div>
+      <span class="tag unique" data-i18n="tag.unique">고유</span>
+    </div>
+  </div>
+</section>
+
+<!-- ========= GAMEPLAY GALLERY ========= -->
+<section id="gameplay" class="block">
+  <div class="section-head">
+    <div class="eyebrow" data-i18n="gameplay.eyebrow">GAMEPLAY / MOMENTS</div>
+    <h2 data-i18n="gameplay.title">바다가 기억하는 순간들</h2>
+    <p data-i18n="gameplay.subtitle">광역 폭발, 빙결, 마법진, 보스전 — 모두 한 번의 다이브 안에서.</p>
+  </div>
+
+  <div class="gameplay">
+    <a class="gameplay-tile large" data-clip-tile>
+      <video src="assets/clips/g03.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g03.webp"></video>
+    </a>
+    <a class="gameplay-tile tall" data-clip-tile>
+      <video src="assets/clips/g05.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g05.webp"></video>
+    </a>
+    <a class="gameplay-tile normal" data-clip-tile>
+      <video src="assets/clips/g02.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g02.webp"></video>
+    </a>
+    <a class="gameplay-tile normal" data-clip-tile>
+      <video src="assets/clips/g07.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g07.webp"></video>
+    </a>
+    <a class="gameplay-tile wide" data-clip-tile>
+      <video src="assets/clips/g04.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g04.webp"></video>
+    </a>
+    <a class="gameplay-tile wide" data-clip-tile>
+      <video src="assets/clips/g11.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g11.webp"></video>
+    </a>
+  </div>
+</section>
+
+<!-- ========= GALLERY ========= -->
+<section id="gallery" class="block">
+  <div class="section-head">
+    <div class="eyebrow" data-i18n="gallery.eyebrow">GALLERY / SCENES</div>
+    <h2 data-i18n="gallery.title">장면들</h2>
+  </div>
+
+  <div class="gallery">
+    <div class="tile"><img src="assets/scenes/P_01.webp" alt="장면 P01" loading="lazy" /></div>
+    <div class="tile"><img src="assets/scenes/P_03.webp" alt="장면 P03" loading="lazy" /></div>
+    <div class="tile"><img src="assets/scenes/S1_02.webp" alt="장면 S1-02" loading="lazy" /></div>
+    <div class="tile"><img src="assets/scenes/S2_03.webp" alt="장면 S2-03" loading="lazy" /></div>
+    <div class="tile"><img src="assets/scenes/S3_03.webp" alt="장면 S3-03" loading="lazy" /></div>
+    <div class="tile"><img src="assets/scenes/S4_02.webp" alt="장면 S4-02" loading="lazy" /></div>
+    <div class="tile"><img src="assets/scenes/S5_05.webp" alt="장면 S5-05" loading="lazy" /></div>
+    <div class="tile"><img src="assets/scenes/P_05.webp" alt="장면 P05" loading="lazy" /></div>
+  </div>
+</section>
+
+<!-- ========= FINAL CTA ========= -->
+<section class="final">
+  <h2 data-i18n="final.title">되돌아갈 곳을 위해.</h2>
+  <p data-i18n="final.desc">고래는 다시 헤엄치기 시작했다. 이번에는, 당신과 함께.</p>
+  <div class="cta-row" style="justify-content:center;">
+    <a href="#top" class="btn" data-i18n="final.btn1">▶ 위로</a>
+    <a href="#stages" class="btn secondary" data-i18n="final.btn2">스테이지 다시 보기</a>
+  </div>
+</section>
+
+<!-- ========= FOOTER ========= -->
+<footer>
+  <div class="row">
+    <div class="copy">© 2026 WHALE SURVIVORS</div>
+    <div class="credits" data-i18n-html="footer.credits">
+      도트 픽셀 인디 서바이버 · Made with <span class="heart">♥</span> for the deep sea.
+    </div>
+  </div>
+</footer>
+
+<!-- decorative walking sprite (single frame from sprite sheet) -->
+<div class="walking-whale" aria-hidden="true"></div>
+
+<script src="i18n.js" defer></script>
+<script defer>
+  // smooth scroll
+  document.querySelectorAll('a[href^="#"]').forEach(a=>{
+    a.addEventListener('click', e=>{
+      const id = a.getAttribute('href');
+      if(id.length>1){
+        const t = document.querySelector(id);
+        if(t){ e.preventDefault(); t.scrollIntoView({behavior:'smooth', block:'start'}); }
+      }
+    });
+  });
+
+  // ----- i18n bootstrap -----
+  const SUPPORTED = ['ko','en','ja','zh-CN','zh-TW','ru','es','pt-BR','de','fr'];
+  const LANG_LABEL = {
+    'ko':'한국어','en':'English','ja':'日本語','zh-CN':'简体中文','zh-TW':'繁體中文',
+    'ru':'Русский','es':'Español','pt-BR':'Português (BR)','de':'Deutsch','fr':'Français'
+  };
+
+  function detectLang(){
+    try {
+      const saved = localStorage.getItem('whale-lang');
+      if (saved && SUPPORTED.includes(saved)) return saved;
+    } catch(_){}
+    const langs = (navigator.languages || [navigator.language || 'en']).map(s=>s.toLowerCase());
+    for (const l of langs){
+      if (l.startsWith('zh-tw') || l.startsWith('zh-hk') || l.startsWith('zh-hant')) return 'zh-TW';
+      if (l.startsWith('zh')) return 'zh-CN';
+      if (l.startsWith('ko')) return 'ko';
+      if (l.startsWith('ja')) return 'ja';
+      if (l.startsWith('ru')) return 'ru';
+      if (l.startsWith('pt')) return 'pt-BR';
+      if (l.startsWith('es')) return 'es';
+      if (l.startsWith('de')) return 'de';
+      if (l.startsWith('fr')) return 'fr';
+      if (l.startsWith('en')) return 'en';
+    }
+    return 'en';
+  }
+
+  function applyLang(lang){
+    const dict = (window.I18N && window.I18N[lang]) || {};
+    if (!dict || !Object.keys(dict).length) return;
+    document.documentElement.lang = lang;
+    if (dict['meta.title']) document.title = dict['meta.title'];
+    const metaDesc = document.querySelector('meta[name="description"]');
+    if (metaDesc && dict['meta.description']) metaDesc.setAttribute('content', dict['meta.description']);
+    document.querySelectorAll('[data-i18n]').forEach(el=>{
+      const k = el.getAttribute('data-i18n');
+      if (dict[k] != null) el.textContent = dict[k];
+    });
+    document.querySelectorAll('[data-i18n-html]').forEach(el=>{
+      const k = el.getAttribute('data-i18n-html');
+      if (dict[k] != null) el.innerHTML = dict[k];
+    });
+    const lbl = document.getElementById('langLabel');
+    if (lbl) lbl.textContent = LANG_LABEL[lang] || lang;
+    document.querySelectorAll('#langMenu button').forEach(b=>{
+      b.classList.toggle('active', b.dataset.lang === lang);
+    });
+  }
+
+  function buildLangMenu(){
+    const menu = document.getElementById('langMenu');
+    menu.innerHTML = '';
+    SUPPORTED.forEach(code=>{
+      const b = document.createElement('button');
+      b.type = 'button';
+      b.dataset.lang = code;
+      b.textContent = LANG_LABEL[code];
+      b.addEventListener('click', ()=>{
+        try { localStorage.setItem('whale-lang', code); } catch(_){}
+        applyLang(code);
+        menu.classList.remove('open');
+        document.getElementById('langBtn').setAttribute('aria-expanded','false');
+      });
+      menu.appendChild(b);
+    });
+  }
+
+  function initI18n(){
+    buildLangMenu();
+    const btn = document.getElementById('langBtn');
+    const menu = document.getElementById('langMenu');
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      const isOpen = menu.classList.toggle('open');
+      btn.setAttribute('aria-expanded', String(isOpen));
+    });
+    document.addEventListener('click', e=>{
+      if (!menu.contains(e.target) && e.target !== btn) {
+        menu.classList.remove('open');
+        btn.setAttribute('aria-expanded','false');
+      }
+    });
+    applyLang(detectLang());
+  }
+
+  // run once both scripts have loaded
+  if (document.readyState === 'loading') {
+    document.addEventListener('DOMContentLoaded', initI18n);
+  } else {
+    initI18n();
+  }
+
+  // ----- Hero slideshow -----
+  (function initHeroSlideshow(){
+    const slides = Array.from(document.querySelectorAll('.hero-slide'));
+    if (!slides.length) return;
+    const dotsWrap = document.getElementById('heroDots');
+    const prevBtn  = document.getElementById('heroPrev');
+    const nextBtn  = document.getElementById('heroNext');
+    let idx = 0;
+    let timer = null;
+    const DURATION = 6500; // ms per slide
+
+    // build dots
+    slides.forEach((_, i)=>{
+      const d = document.createElement('button');
+      d.className = 'hero-dot' + (i===0 ? ' active' : '');
+      d.type = 'button';
+      d.setAttribute('aria-label', `클립 ${i+1}`);
+      d.addEventListener('click', ()=> show(i, true));
+      dotsWrap.appendChild(d);
+    });
+    const dots = Array.from(dotsWrap.children);
+
+    function show(i, fromUser){
+      if (i === idx) return;
+      const prev = slides[idx];
+      const next = slides[i];
+      prev.classList.remove('active');
+      next.classList.add('active');
+      // play next, pause prev (after fade)
+      const nv = next.querySelector('video');
+      const pv = prev.querySelector('video');
+      // ensure metadata loaded
+      if (nv.readyState < 2) nv.load();
+      nv.currentTime = 0;
+      nv.play().catch(()=>{});
+      setTimeout(()=>{ pv.pause(); }, 1200);
+      dots[idx].classList.remove('active');
+      dots[i].classList.add('active');
+      idx = i;
+      if (fromUser) restart();
+    }
+
+    function next(){ show((idx + 1) % slides.length); }
+    function prev(){ show((idx - 1 + slides.length) % slides.length); }
+
+    function tick(){ next(); }
+    function restart(){
+      if (timer) clearInterval(timer);
+      timer = setInterval(tick, DURATION);
+    }
+
+    nextBtn.addEventListener('click', ()=>{ next(); restart(); });
+    prevBtn.addEventListener('click', ()=>{ prev(); restart(); });
+
+    // start the first slide playing
+    const firstVideo = slides[0].querySelector('video');
+    firstVideo.play().catch(()=>{
+      // if blocked by autoplay, try on first user gesture
+      const start = ()=>{
+        firstVideo.play().catch(()=>{});
+        window.removeEventListener('pointerdown', start);
+        window.removeEventListener('keydown', start);
+      };
+      window.addEventListener('pointerdown', start, { passive:true });
+      window.addEventListener('keydown', start);
+    });
+
+    // pause everything when tab hidden
+    document.addEventListener('visibilitychange', ()=>{
+      if (document.hidden) {
+        slides.forEach(s => s.querySelector('video').pause());
+        if (timer) { clearInterval(timer); timer = null; }
+      } else {
+        slides[idx].querySelector('video').play().catch(()=>{});
+        restart();
+      }
+    });
+
+    restart();
+  })();
+
+  // ----- Stage card hover-to-play videos -----
+  document.querySelectorAll('.stage-card').forEach(card=>{
+    const v = card.querySelector('video[data-clip]');
+    if (!v) return;
+    let loaded = false;
+    card.addEventListener('mouseenter', ()=>{
+      if (!loaded) { v.preload = 'auto'; v.load(); loaded = true; }
+      v.play().catch(()=>{});
+    });
+    card.addEventListener('mouseleave', ()=>{ v.pause(); v.currentTime = 0; });
+  });
+
+  // ----- Gameplay tiles: autoplay when in viewport, pause when out -----
+  if ('IntersectionObserver' in window) {
+    const io = new IntersectionObserver(entries=>{
+      entries.forEach(e=>{
+        const v = e.target.querySelector('video');
+        if (!v) return;
+        if (e.isIntersecting) {
+          v.play().catch(()=>{});
+        } else {
+          v.pause();
+        }
+      });
+    }, { threshold: 0.25 });
+    document.querySelectorAll('[data-clip-tile]').forEach(t => io.observe(t));
+  } else {
+    // Fallback: just play all
+    document.querySelectorAll('[data-clip-tile] video').forEach(v => v.play().catch(()=>{}));
+  }
+
+  // ----- BGM (lobby) -----
+  // Browser autoplay policy: audio with sound cannot autoplay until the user
+  // interacts with the page. Strategy:
+  //   - default ON (user preference saved in localStorage)
+  //   - try to play immediately; if browser blocks it, start playback on the
+  //     first user gesture (click/keydown/scroll)
+  (function initBgm(){
+    const audio = document.getElementById('bgm');
+    const btn   = document.getElementById('bgmBtn');
+    if (!audio || !btn) return;
+
+    audio.volume = 0.35; // gentle background level
+
+    const KEY = 'whale-bgm';
+    let wantOn = true;
+    try {
+      const saved = localStorage.getItem(KEY);
+      if (saved === 'off') wantOn = false;
+    } catch(_){}
+
+    function setUI(on){
+      btn.setAttribute('aria-pressed', String(on));
+      btn.querySelector('.wave').textContent = on ? '♪' : '♪̸';
+    }
+
+    async function play(){
+      try { await audio.play(); setUI(true); }
+      catch(_){ /* will retry on first gesture */ setUI(false); }
+    }
+    function pause(){ audio.pause(); setUI(false); }
+
+    setUI(wantOn);
+    if (wantOn) play();
+
+    // First-gesture fallback: if blocked, start on any interaction
+    function gestureStart(){
+      if (wantOn && audio.paused) play();
+      window.removeEventListener('pointerdown', gestureStart);
+      window.removeEventListener('keydown', gestureStart);
+      window.removeEventListener('scroll', gestureStart);
+    }
+    window.addEventListener('pointerdown', gestureStart, { passive:true });
+    window.addEventListener('keydown', gestureStart);
+    window.addEventListener('scroll', gestureStart, { passive:true });
+
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      if (audio.paused) {
+        wantOn = true;
+        try { localStorage.setItem(KEY, 'on'); } catch(_){}
+        play();
+      } else {
+        wantOn = false;
+        try { localStorage.setItem(KEY, 'off'); } catch(_){}
+        pause();
+      }
+    });
+
+    // Pause when tab is hidden, resume when visible (and user wants it on)
+    document.addEventListener('visibilitychange', ()=>{
+      if (document.hidden) audio.pause();
+      else if (wantOn) play();
+    });
+  })();
+</script>
+
+</body>
+</html>

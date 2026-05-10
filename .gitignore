@@ -1,0 +1,20 @@
+# macOS
+.DS_Store
+
+# Node (in case dependencies are added later)
+node_modules/
+npm-debug.log*
+
+# IDE
+.vscode/
+.idea/
+
+# Orphaned placeholder assets (not used by the site)
+assets/lobby/app-icon-512.png
+assets/lobby/icns_*.png
+
+# Stale .git directory the sandbox couldn't delete
+.git_broken_temp/
+
+# Source GIF originals (240MB) — only the mp4/webp derivatives are tracked
+assets/gif/
