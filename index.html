@@ -414,30 +414,15 @@
     border-color: var(--sun);
   }
   .stage-card .img{
-    position:relative;
     aspect-ratio: 16 / 10;
     overflow:hidden;
     background: var(--abyss);
   }
-  .stage-card .img img,
-  .stage-card .img video{
-    position:absolute; inset:0;
+  .stage-card .img img{
     width:100%; height:100%; object-fit:cover;
-    transition: opacity .4s, transform .4s;
+    transition: transform .4s;
   }
-  .stage-card .img video{ opacity:0; }
-  .stage-card:hover .img img{ opacity:0; }
-  .stage-card:hover .img video{ opacity:1; }
-  .stage-card .img::after{
-    content:"▶ HOVER";
-    position:absolute; bottom:8px; right:10px;
-    font-family:'Press Start 2P', monospace; font-size: 8px;
-    color: var(--sun); background: hsla(220 70% 4% / 0.7);
-    padding: 4px 6px;
-    pointer-events:none;
-    transition: opacity .2s;
-  }
-  .stage-card:hover .img::after{ opacity:0; }
+  .stage-card:hover .img img{ transform: scale(1.05); }
   .stage-card .meta{ padding: 18px 18px 22px; }
   .stage-card .num{
     font-family:'Press Start 2P', monospace;
@@ -527,14 +512,14 @@
     width:100%; height:100%; object-fit:cover; display:block;
     image-rendering: pixelated;
   }
-  /* mosaic spans */
+  /* mosaic spans (5-tile layout) */
   .gameplay-tile.large{ grid-column: span 3; grid-row: span 2; }
-  .gameplay-tile.tall{  grid-column: span 2; grid-row: span 2; }
-  .gameplay-tile.wide{  grid-column: span 3; grid-row: span 1; }
-  .gameplay-tile.normal{ grid-column: span 2; grid-row: span 1; }
+  .gameplay-tile.tall{  grid-column: span 3; grid-row: span 2; }
+  .gameplay-tile.wide{  grid-column: span 6; grid-row: span 1; }
+  .gameplay-tile.normal{ grid-column: span 3; grid-row: span 1; }
   @media (max-width: 980px){
     .gameplay-tile.large{ grid-column: span 4; grid-row: span 2; }
-    .gameplay-tile.tall{  grid-column: span 2; grid-row: span 2; }
+    .gameplay-tile.tall{  grid-column: span 4; grid-row: span 2; }
     .gameplay-tile.wide{  grid-column: span 4; grid-row: span 1; }
     .gameplay-tile.normal{ grid-column: span 2; grid-row: span 1; }
   }
@@ -869,10 +854,7 @@
   <div class="stages">
     <article class="stage-card">
       <span class="badge">STAGE 01</span>
-      <div class="img">
-        <img src="assets/scenes/S1_01.webp" alt="" />
-        <video src="assets/clips/g01.mp4" muted loop playsinline preload="none" data-clip></video>
-      </div>
+      <div class="img"><img src="assets/scenes/S1_01.webp" alt="" /></div>
       <div class="meta">
         <div class="num">CORAL REEF</div>
         <h3 data-i18n="stage.1.name">산호 해역</h3>
@@ -883,10 +865,7 @@
 
     <article class="stage-card">
       <span class="badge">STAGE 02</span>
-      <div class="img">
-        <img src="assets/scenes/S2_01.webp" alt="" />
-        <video src="assets/clips/g04.mp4" muted loop playsinline preload="none" data-clip></video>
-      </div>
+      <div class="img"><img src="assets/scenes/S2_01.webp" alt="" /></div>
       <div class="meta">
         <div class="num">GLACIER SEA</div>
         <h3 data-i18n="stage.2.name">빙하 해역</h3>
@@ -897,10 +876,7 @@
 
     <article class="stage-card">
       <span class="badge">STAGE 03</span>
-      <div class="img">
-        <img src="assets/scenes/S3_01.webp" alt="" />
-        <video src="assets/clips/g11.mp4" muted loop playsinline preload="none" data-clip></video>
-      </div>
+      <div class="img"><img src="assets/scenes/S3_01.webp" alt="" /></div>
       <div class="meta">
         <div class="num">SHIPWRECK ZONE</div>
         <h3 data-i18n="stage.3.name">침몰선 해역</h3>
@@ -911,10 +887,7 @@
 
     <article class="stage-card">
       <span class="badge">STAGE 04</span>
-      <div class="img">
-        <img src="assets/scenes/S4_01.webp" alt="" />
-        <video src="assets/clips/g08.mp4" muted loop playsinline preload="none" data-clip></video>
-      </div>
+      <div class="img"><img src="assets/scenes/S4_01.webp" alt="" /></div>
       <div class="meta">
         <div class="num">THE ABYSS</div>
         <h3 data-i18n="stage.4.name">심연</h3>
@@ -925,10 +898,7 @@
 
     <article class="stage-card">
       <span class="badge">STAGE 05</span>
-      <div class="img">
-        <img src="assets/scenes/S5_01.webp" alt="" />
-        <video src="assets/clips/g09.mp4" muted loop playsinline preload="none" data-clip></video>
-      </div>
+      <div class="img"><img src="assets/scenes/S5_01.webp" alt="" /></div>
       <div class="meta">
         <div class="num">LAVA RIFT</div>
         <h3 data-i18n="stage.5.name">용암 해구</h3>
@@ -939,10 +909,7 @@
 
     <article class="stage-card">
       <span class="badge">STAGE 06</span>
-      <div class="img">
-        <img src="assets/scenes/S6_01.webp" alt="" />
-        <video src="assets/clips/g10.mp4" muted loop playsinline preload="none" data-clip></video>
-      </div>
+      <div class="img"><img src="assets/scenes/S6_01.webp" alt="" /></div>
       <div class="meta">
         <div class="num">BEYOND THE END</div>
         <h3 data-i18n="stage.6.name">끝 너머</h3>
@@ -1107,22 +1074,19 @@
 
   <div class="gameplay">
     <a class="gameplay-tile large" data-clip-tile>
-      <video src="assets/clips/g03.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g03.webp"></video>
+      <video src="assets/clips/g09.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g09.webp"></video>
     </a>
     <a class="gameplay-tile tall" data-clip-tile>
-      <video src="assets/clips/g05.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g05.webp"></video>
-    </a>
-    <a class="gameplay-tile normal" data-clip-tile>
-      <video src="assets/clips/g02.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g02.webp"></video>
-    </a>
-    <a class="gameplay-tile normal" data-clip-tile>
-      <video src="assets/clips/g07.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g07.webp"></video>
+      <video src="assets/clips/g10.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g10.webp"></video>
     </a>
     <a class="gameplay-tile wide" data-clip-tile>
-      <video src="assets/clips/g04.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g04.webp"></video>
+      <video src="assets/clips/g08.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g08.webp"></video>
     </a>
-    <a class="gameplay-tile wide" data-clip-tile>
-      <video src="assets/clips/g11.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g11.webp"></video>
+    <a class="gameplay-tile normal" data-clip-tile>
+      <video src="assets/clips/g06.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g06.webp"></video>
+    </a>
+    <a class="gameplay-tile normal" data-clip-tile>
+      <video src="assets/clips/g01.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g01.webp"></video>
     </a>
   </div>
 </section>
@@ -1355,18 +1319,6 @@
 
     restart();
   })();
-
-  // ----- Stage card hover-to-play videos -----
-  document.querySelectorAll('.stage-card').forEach(card=>{
-    const v = card.querySelector('video[data-clip]');
-    if (!v) return;
-    let loaded = false;
-    card.addEventListener('mouseenter', ()=>{
-      if (!loaded) { v.preload = 'auto'; v.load(); loaded = true; }
-      v.play().catch(()=>{});
-    });
-    card.addEventListener('mouseleave', ()=>{ v.pause(); v.currentTime = 0; });
-  });
 
   // ----- Gameplay tiles: autoplay when in viewport, pause when out -----
   if ('IntersectionObserver' in window) {
