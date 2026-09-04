@@ -159,37 +159,72 @@
   .lang-menu button.active{ color: var(--sun); }
   .lang-menu button.active::before{ content:"▸ "; color: var(--sun); }
 
-  /* ----- HERO ----- */
+  /* ----- BGM toggle ----- */
+  .bgm-btn{
+    display:inline-flex; align-items:center; justify-content:center;
+    width:40px; height:40px;
+    font-family:'Press Start 2P', monospace;
+    font-size: 14px;
+    color: var(--foam);
+    background: var(--abyss);
+    border: 2px solid var(--shallow);
+    cursor:pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .bgm-btn:hover{ border-color: var(--sun); color: var(--sun); }
+  .bgm-btn[aria-pressed="true"]{ color: var(--sun); border-color: var(--sun); }
+  .bgm-btn .wave{
+    display:inline-block;
+    animation: wave-anim 1.2s ease-in-out infinite;
+  }
+  .bgm-btn[aria-pressed="false"] .wave{ animation:none; opacity:0.4; }
+  @keyframes wave-anim{
+    0%,100%{ transform: scaleY(1); }
+    50%   { transform: scaleY(1.4); }
+  }
+
+  /* ----- HERO (full-bleed video slideshow) ----- */
   .hero{
     position:relative;
-    min-height: min(92vh, 820px);
+    min-height: 100vh;
     display:flex; align-items:center; justify-content:center;
-    padding: 80px 24px 60px;
+    padding: 90px 24px 100px;
     overflow:hidden;
   }
-  .hero-bg{
+  .hero-slideshow{
+    position:absolute; inset:0; z-index:0;
+    background: var(--abyss);
+  }
+  .hero-slide{
     position:absolute; inset:0;
+    opacity: 0;
+    transition: opacity 1.2s ease;
+  }
+  .hero-slide.active{ opacity: 1; }
+  .hero-slide video{
+    width:100%; height:100%; object-fit:cover; display:block;
+    image-rendering: pixelated;
+  }
+  .hero-overlay{
+    position:absolute; inset:0; z-index:1; pointer-events:none;
     background:
-      radial-gradient(ellipse at 30% 20%, hsla(195 95% 60% / 0.15), transparent 60%),
-      radial-gradient(ellipse at 70% 80%, hsla(200 55% 18% / 0.6), transparent 70%),
-      linear-gradient(to bottom, hsl(215 65% 10%), hsl(220 70% 4%));
-    z-index:0;
+      radial-gradient(ellipse at center, hsla(220 70% 4% / 0.25) 0%, hsla(220 70% 4% / 0.55) 60%, hsla(220 70% 4% / 0.92) 100%),
+      linear-gradient(to bottom, hsla(220 70% 4% / 0.55) 0%, hsla(220 70% 4% / 0.05) 35%, hsla(220 70% 4% / 0.55) 70%, hsla(220 70% 4% / 0.98) 100%);
   }
   .hero-grid{
-    position:absolute; inset:0;
+    position:absolute; inset:0; z-index:1; pointer-events:none;
     background-image:
-      linear-gradient(to right, rgba(255,255,255,0.03) 1px, transparent 1px),
-      linear-gradient(to bottom, rgba(255,255,255,0.03) 1px, transparent 1px);
+      linear-gradient(to right, rgba(255,255,255,0.04) 1px, transparent 1px),
+      linear-gradient(to bottom, rgba(255,255,255,0.04) 1px, transparent 1px);
     background-size: 32px 32px;
-    z-index:0;
     mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
   }
   .bubble{
     position:absolute; border-radius:50%;
-    background: hsla(180 65% 75% / 0.18);
-    box-shadow: inset 0 0 0 2px hsla(180 65% 75% / 0.5);
+    background: hsla(180 65% 75% / 0.22);
+    box-shadow: inset 0 0 0 2px hsla(180 65% 75% / 0.55);
     animation: rise linear infinite;
-    z-index:1;
+    z-index:2;
   }
   @keyframes rise{
     0%   { transform: translateY(40vh) scale(0.7); opacity:0; }
@@ -197,41 +232,88 @@
     100% { transform: translateY(-110vh) scale(1.1); opacity:0; }
   }
   .hero-content{
-    position:relative; z-index:2;
-    max-width: 1100px; width:100%;
-    display:grid; grid-template-columns: 1.1fr 1fr; gap:48px; align-items:center;
+    position:relative; z-index:3;
+    max-width: 1000px; width:100%;
+    text-align:center;
+    display:flex; flex-direction:column; align-items:center;
   }
-  @media (max-width: 880px){
-    .hero-content{ grid-template-columns: 1fr; text-align:center; }
+  /* slideshow controls */
+  .hero-controls{
+    position:absolute; bottom: 30px; left:0; right:0;
+    z-index:4;
+    display:flex; align-items:center; justify-content:center; gap: 16px;
+  }
+  .hero-arrow{
+    width:36px; height:36px;
+    display:inline-flex; align-items:center; justify-content:center;
+    font-family:'Press Start 2P', monospace; font-size: 12px;
+    color: var(--foam);
+    background: hsla(220 70% 4% / 0.6);
+    border: 2px solid var(--shallow);
+    cursor:pointer;
+    transition: border-color .15s, color .15s;
+  }
+  .hero-arrow:hover{ border-color: var(--sun); color: var(--sun); }
+  .hero-dots{
+    display:flex; gap: 10px; align-items:center;
+  }
+  .hero-dot{
+    width: 24px; height: 6px;
+    background: hsla(180 65% 75% / 0.35);
+    border: none;
+    cursor:pointer;
+    transition: background .2s, width .2s;
+    padding: 0;
+  }
+  .hero-dot:hover{ background: hsla(180 65% 75% / 0.6); }
+  .hero-dot.active{
+    background: var(--sun);
+    width: 36px;
+  }
+  .hero-scroll-hint{
+    position:absolute; bottom: 8px; left:0; right:0;
+    z-index:4; text-align:center;
+    font-family:'Press Start 2P', monospace; font-size: 8px;
+    color: var(--foam);
+    opacity: 0.6;
+    animation: scrollPulse 2s ease-in-out infinite;
+    pointer-events:none;
+  }
+  @keyframes scrollPulse{
+    0%,100%{ transform: translateY(0); opacity:0.5; }
+    50%   { transform: translateY(4px); opacity:0.9; }
   }
   .tagline{
     display:inline-block;
     font-family:'Press Start 2P', monospace;
     font-size: var(--fs-tip);
     color: var(--xp);
+    background: hsla(220 70% 4% / 0.55);
     border: 2px solid var(--xp);
-    padding: 8px 12px;
+    padding: 8px 14px;
     margin-bottom: 28px;
+    backdrop-filter: blur(2px);
+    text-shadow: 2px 2px 0 var(--abyss);
   }
   .hero h1{
-    font-size: clamp(28px, 4.4vw, 52px);
+    font-size: clamp(32px, 5.2vw, 60px);
     line-height: 1.25;
     color: var(--cream);
     text-shadow:
       3px 3px 0 var(--abyss),
-      6px 6px 0 hsl(195 95% 60% / 0.4);
-    margin-bottom: 18px;
+      6px 6px 0 hsl(195 95% 60% / 0.5),
+      0 0 30px hsla(220 70% 4% / 0.9);
+    margin-bottom: 22px;
   }
   .hero h1 .accent{ color: var(--sun); display:block; }
   .hero p.lead{
     font-size: 22px;
-    color: var(--foam);
-    max-width: 520px;
-    margin-bottom: 36px;
+    color: var(--cream);
+    max-width: 620px;
+    margin: 0 auto 36px;
+    text-shadow: 2px 2px 0 var(--abyss), 0 0 20px hsla(220 70% 4% / 0.95);
   }
-  @media (max-width: 880px){ .hero p.lead{ margin-left:auto; margin-right:auto; } }
-  .cta-row{ display:flex; gap:16px; flex-wrap:wrap; }
-  @media (max-width: 880px){ .cta-row{ justify-content:center; } }
+  .cta-row{ display:flex; gap:16px; flex-wrap:wrap; justify-content:center; }
   .btn{
     display:inline-flex; align-items:center; gap:10px;
     font-family:'Press Start 2P', monospace;
@@ -268,21 +350,6 @@
   }
   .btn.secondary:hover{ color: var(--sun); }
 
-  .hero-art{
-    position:relative;
-    aspect-ratio: 1 / 1;
-    width: 100%; max-width: 480px;
-    margin: 0 auto;
-  }
-  .hero-art img{
-    width:100%; height:100%; object-fit:contain;
-    filter: drop-shadow(0 0 30px hsla(195 95% 60% / 0.35));
-    animation: float 5s ease-in-out infinite;
-  }
-  @keyframes float{
-    0%,100%{ transform: translateY(0); }
-    50%   { transform: translateY(-14px); }
-  }
 
   /* ----- Section base ----- */
   section.block{
@@ -374,6 +441,51 @@
     padding: 6px 8px;
     background: var(--abyss); color: var(--sun);
     border: 2px solid var(--sun);
+  }
+
+  /* ----- In Action (large showcase video) ----- */
+  .in-action{
+    display:grid; grid-template-columns: 1.4fr 1fr; gap: 36px; align-items:center;
+  }
+  @media (max-width: 880px){ .in-action{ grid-template-columns: 1fr; } }
+  .in-action-video{
+    position:relative;
+    border: 4px solid var(--shallow);
+    box-shadow:
+      0 0 0 4px var(--abyss),
+      0 0 60px hsla(195 95% 60% / 0.25);
+    overflow:hidden;
+    background: var(--abyss);
+  }
+  .in-action-video video{
+    width:100%; height:auto; display:block;
+    image-rendering: pixelated;
+  }
+  .in-action-video::after{
+    content:"";
+    position:absolute; inset:0; pointer-events:none;
+    background: repeating-linear-gradient(
+      to bottom, transparent 0 2px, rgba(0,0,0,0.18) 3px 4px
+    );
+    mix-blend-mode: multiply;
+  }
+  .in-action-text h2{
+    color: var(--cream); margin-bottom: 14px;
+    text-shadow: 2px 2px 0 var(--abyss);
+  }
+  .in-action-text .lead{
+    color: var(--foam); font-size: 19px; margin-bottom: 18px;
+  }
+  .in-action-text ul{
+    list-style:none; display:flex; flex-direction:column; gap:10px;
+  }
+  .in-action-text li{
+    font-size: 17px; color: var(--cream);
+    padding-left: 18px; position:relative;
+  }
+  .in-action-text li::before{
+    content:"▸"; position:absolute; left:0;
+    color: var(--sun);
   }
 
   /* ----- Bosses ----- */
@@ -550,12 +662,15 @@
     <nav>
       <ul>
         <li><a href="#story" data-i18n="nav.story">STORY</a></li>
+        <li><a href="#in-action" data-i18n="nav.gameplay">GAMEPLAY</a></li>
         <li><a href="#stages" data-i18n="nav.stages">STAGES</a></li>
         <li><a href="#bosses" data-i18n="nav.bosses">BOSSES</a></li>
-        <li><a href="#features" data-i18n="nav.features">FEATURES</a></li>
         <li><a href="#weapons" data-i18n="nav.weapons">WEAPONS</a></li>
       </ul>
     </nav>
+    <button class="bgm-btn" id="bgmBtn" aria-pressed="false" aria-label="배경음 재생/정지" title="BGM">
+      <span class="wave">♪</span>
+    </button>
     <div class="lang-wrap">
       <button class="lang-btn" id="langBtn" aria-haspopup="true" aria-expanded="false">
         <span id="langLabel">한국어</span>
@@ -564,11 +679,35 @@
       <div class="lang-menu" id="langMenu" role="menu"></div>
     </div>
   </div>
+  <audio id="bgm" src="assets/sounds/lobby.mp3" loop preload="auto"></audio>
 </header>
 
-<!-- ========= HERO ========= -->
+<!-- ========= HERO (full-bleed video slideshow) ========= -->
 <section id="top" class="hero">
-  <div class="hero-bg"></div>
+  <div class="hero-slideshow" id="heroSlideshow">
+    <div class="hero-slide active">
+      <video src="assets/clips/g06.mp4" muted loop playsinline preload="auto" poster="assets/posters/g06.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g01.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g01.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g03.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g03.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g04.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g04.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g05.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g05.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g08.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g08.webp"></video>
+    </div>
+    <div class="hero-slide">
+      <video src="assets/clips/g11.mp4" muted loop playsinline preload="metadata" poster="assets/posters/g11.webp"></video>
+    </div>
+  </div>
+  <div class="hero-overlay"></div>
   <div class="hero-grid"></div>
 
   <!-- decorative bubbles -->
@@ -581,25 +720,27 @@
   <span class="bubble" style="left:90%; width:12px; height:12px; animation-duration:9s;  animation-delay:5s;"></span>
 
   <div class="hero-content">
-    <div>
-      <span class="tagline" data-i18n="hero.tagline">PIXEL · ROGUELITE · SURVIVOR</span>
-      <h1>
-        <span data-i18n="hero.title.l1">오염된 바다,</span>
-        <span class="accent" data-i18n="hero.title.l2">단 한 마리의 고래</span>
-      </h1>
-      <p class="lead" data-i18n="hero.lead">
-        흐름이 달라졌다. 산호는 이웃을 잠식하고, 수호자들은 서로를 먹기 시작했다.
-        고래는 그 방향으로 헤엄쳤다 — 되돌아올 보장도 없이.
-      </p>
-      <div class="cta-row">
-        <a href="#story" class="btn" data-i18n="cta.start">▶ 모험 시작</a>
-        <a href="#stages" class="btn secondary" data-i18n="cta.viewStages">스테이지 보기</a>
-      </div>
-    </div>
-    <div class="hero-art">
-      <img src="assets/lobby/lobby_whale.webp" alt="픽셀 고래 캐릭터" />
+    <span class="tagline" data-i18n="hero.tagline">PIXEL · ROGUELITE · SURVIVOR</span>
+    <h1>
+      <span data-i18n="hero.title.l1">오염된 바다,</span>
+      <span class="accent" data-i18n="hero.title.l2">단 한 마리의 고래</span>
+    </h1>
+    <p class="lead" data-i18n="hero.lead">
+      흐름이 달라졌다. 산호는 이웃을 잠식하고, 수호자들은 서로를 먹기 시작했다.
+      고래는 그 방향으로 헤엄쳤다 — 되돌아올 보장도 없이.
+    </p>
+    <div class="cta-row">
+      <a href="#story" class="btn" data-i18n="cta.start">▶ 모험 시작</a>
+      <a href="#stages" class="btn secondary" data-i18n="cta.viewStages">스테이지 보기</a>
     </div>
   </div>
+
+  <div class="hero-controls">
+    <button class="hero-arrow" id="heroPrev" aria-label="이전 클립">◀</button>
+    <div class="hero-dots" id="heroDots"></div>
+    <button class="hero-arrow" id="heroNext" aria-label="다음 클립">▶</button>
+  </div>
+  <div class="hero-scroll-hint">▼ SCROLL</div>
 </section>
 
 <!-- ========= STORY ========= -->
@@ -628,6 +769,30 @@
         고래는 적을 증오하지 않는다. 모두 한때 바다의 일부였음을 알기에.
         그래서 이 싸움은 승리가 아니라 <span class="hl">치유</span>다.
       </p>
+    </div>
+  </div>
+</section>
+
+<!-- ========= IN ACTION ========= -->
+<section id="in-action" class="block">
+  <div class="section-head">
+    <div class="eyebrow" data-i18n="inaction.eyebrow">IN ACTION / GAMEPLAY</div>
+    <h2 data-i18n="inaction.title">노래는 무기가, 무리는 풍경이 된다</h2>
+    <p data-i18n="inaction.subtitle">한 번의 다이브 속에서 펼쳐지는 광기의 안무.</p>
+  </div>
+
+  <div class="in-action">
+    <div class="in-action-video">
+      <video src="assets/clips/g10.mp4" autoplay muted loop playsinline preload="auto" poster="assets/posters/g10.webp"></video>
+    </div>
+    <div class="in-action-text">
+      <h2 data-i18n="inaction.heading">LV40 — 풀파워의 노래</h2>
+      <p class="lead" data-i18n="inaction.lead">레벨업을 거치며 무기가 진화한다. 후반부엔 화면이 곧 무기가 된다.</p>
+      <ul>
+        <li data-i18n="inaction.f1">▸ 50종 이상의 무기 · 유물 조합</li>
+        <li data-i18n="inaction.f2">▸ 6개 해역 · 6개 보스 · 무한 생존 모드</li>
+        <li data-i18n="inaction.f3">▸ 영구 강화로 매 다이브 더 강하게</li>
+      </ul>
     </div>
   </div>
 </section>
@@ -1000,6 +1165,152 @@
   } else {
     initI18n();
   }
+
+  // ----- Hero slideshow -----
+  (function initHeroSlideshow(){
+    const slides = Array.from(document.querySelectorAll('.hero-slide'));
+    if (!slides.length) return;
+    const dotsWrap = document.getElementById('heroDots');
+    const prevBtn  = document.getElementById('heroPrev');
+    const nextBtn  = document.getElementById('heroNext');
+    let idx = 0;
+    let timer = null;
+    const DURATION = 6500; // ms per slide
+
+    // build dots
+    slides.forEach((_, i)=>{
+      const d = document.createElement('button');
+      d.className = 'hero-dot' + (i===0 ? ' active' : '');
+      d.type = 'button';
+      d.setAttribute('aria-label', `클립 ${i+1}`);
+      d.addEventListener('click', ()=> show(i, true));
+      dotsWrap.appendChild(d);
+    });
+    const dots = Array.from(dotsWrap.children);
+
+    function show(i, fromUser){
+      if (i === idx) return;
+      const prev = slides[idx];
+      const next = slides[i];
+      prev.classList.remove('active');
+      next.classList.add('active');
+      // play next, pause prev (after fade)
+      const nv = next.querySelector('video');
+      const pv = prev.querySelector('video');
+      // ensure metadata loaded
+      if (nv.readyState < 2) nv.load();
+      nv.currentTime = 0;
+      nv.play().catch(()=>{});
+      setTimeout(()=>{ pv.pause(); }, 1200);
+      dots[idx].classList.remove('active');
+      dots[i].classList.add('active');
+      idx = i;
+      if (fromUser) restart();
+    }
+
+    function next(){ show((idx + 1) % slides.length); }
+    function prev(){ show((idx - 1 + slides.length) % slides.length); }
+
+    function tick(){ next(); }
+    function restart(){
+      if (timer) clearInterval(timer);
+      timer = setInterval(tick, DURATION);
+    }
+
+    nextBtn.addEventListener('click', ()=>{ next(); restart(); });
+    prevBtn.addEventListener('click', ()=>{ prev(); restart(); });
+
+    // start the first slide playing
+    const firstVideo = slides[0].querySelector('video');
+    firstVideo.play().catch(()=>{
+      // if blocked by autoplay, try on first user gesture
+      const start = ()=>{
+        firstVideo.play().catch(()=>{});
+        window.removeEventListener('pointerdown', start);
+        window.removeEventListener('keydown', start);
+      };
+      window.addEventListener('pointerdown', start, { passive:true });
+      window.addEventListener('keydown', start);
+    });
+
+    // pause everything when tab hidden
+    document.addEventListener('visibilitychange', ()=>{
+      if (document.hidden) {
+        slides.forEach(s => s.querySelector('video').pause());
+        if (timer) { clearInterval(timer); timer = null; }
+      } else {
+        slides[idx].querySelector('video').play().catch(()=>{});
+        restart();
+      }
+    });
+
+    restart();
+  })();
+
+  // ----- BGM (lobby) -----
+  // Browser autoplay policy: audio with sound cannot autoplay until the user
+  // interacts with the page. Strategy:
+  //   - default ON (user preference saved in localStorage)
+  //   - try to play immediately; if browser blocks it, start playback on the
+  //     first user gesture (click/keydown/scroll)
+  (function initBgm(){
+    const audio = document.getElementById('bgm');
+    const btn   = document.getElementById('bgmBtn');
+    if (!audio || !btn) return;
+
+    audio.volume = 0.35; // gentle background level
+
+    const KEY = 'whale-bgm';
+    let wantOn = true;
+    try {
+      const saved = localStorage.getItem(KEY);
+      if (saved === 'off') wantOn = false;
+    } catch(_){}
+
+    function setUI(on){
+      btn.setAttribute('aria-pressed', String(on));
+      btn.querySelector('.wave').textContent = on ? '♪' : '♪̸';
+    }
+
+    async function play(){
+      try { await audio.play(); setUI(true); }
+      catch(_){ /* will retry on first gesture */ setUI(false); }
+    }
+    function pause(){ audio.pause(); setUI(false); }
+
+    setUI(wantOn);
+    if (wantOn) play();
+
+    // First-gesture fallback: if blocked, start on any interaction
+    function gestureStart(){
+      if (wantOn && audio.paused) play();
+      window.removeEventListener('pointerdown', gestureStart);
+      window.removeEventListener('keydown', gestureStart);
+      window.removeEventListener('scroll', gestureStart);
+    }
+    window.addEventListener('pointerdown', gestureStart, { passive:true });
+    window.addEventListener('keydown', gestureStart);
+    window.addEventListener('scroll', gestureStart, { passive:true });
+
+    btn.addEventListener('click', e=>{
+      e.stopPropagation();
+      if (audio.paused) {
+        wantOn = true;
+        try { localStorage.setItem(KEY, 'on'); } catch(_){}
+        play();
+      } else {
+        wantOn = false;
+        try { localStorage.setItem(KEY, 'off'); } catch(_){}
+        pause();
+      }
+    });
+
+    // Pause when tab is hidden, resume when visible (and user wants it on)
+    document.addEventListener('visibilitychange', ()=>{
+      if (document.hidden) audio.pause();
+      else if (wantOn) play();
+    });
+  })();
 </script>
 
 </body>

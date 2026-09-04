@@ -15,3 +15,6 @@ assets/lobby/icns_*.png
 
 # Stale .git directory the sandbox couldn't delete
 .git_broken_temp/
+
+# Source GIF originals (240MB) — only the mp4/webp derivatives are tracked
+assets/gif/
